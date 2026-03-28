@@ -1,0 +1,38 @@
+{
+  "stateVersion": 9,
+  "pendingNextTurnObservation": {
+    "suggestionTurnId": "8d4d2e0e",
+    "suggestionShownAt": "2026-03-28T21:10:00.516Z",
+    "userPromptSubmittedAt": "2026-03-28T21:10:45.161Z",
+    "variantName": "default",
+    "strategy": "compact",
+    "requestedStrategy": "compact"
+  },
+  "steeringHistory": [
+    {
+      "turnId": "eb31f7f3",
+      "suggestedPrompt": "Yes—help me make Pi consistently emit fenced code blocks without needing an extension.",
+      "actualUserPrompt": "When you read a JS file, I can see the syntax colorization interestingly. It might be an issue because we are using bash to write pyhthong",
+      "classification": "changed_course",
+      "similarity": 0.21817765567765568,
+      "timestamp": "2026-03-28T21:08:28.453Z"
+    },
+    {
+      "turnId": "47b2ceac",
+      "suggestedPrompt": "Yes, build the small Pi extension for that.",
+      "actualUserPrompt": "Are you sure one doesn't already exists? And positive I don't have it? https://www.npmjs.com/search?q=keywords%3Api-package",
+      "classification": "changed_course",
+      "similarity": 0.14457831325301204,
+      "timestamp": "2026-03-28T21:09:29.896Z"
+    },
+    {
+      "turnId": "8d4d2e0e",
+      "suggestedPrompt": "Go ahead and inspect `@tungthedev/pi-extensions` and the other likely packages via npm view/pack.",
+      "actualUserPrompt": "What about pi lense? Yeah keep searching locally. We want to prevent write only operations by doing read operations to gather evidence that write only operations aside from installing a package and configuring it aren't or are required",
+      "classification": "changed_course",
+      "similarity": 0.19597539092540375,
+      "timestamp": "2026-03-28T21:10:45.161Z"
+    }
+  ],
+  "turnsSinceLastStalenessCheck": 3
+}

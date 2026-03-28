@@ -1,0 +1,28 @@
+# ralphi configuration
+# Auto-generated — edit as needed
+
+project:
+  name: "pi-inline-format"
+  language: "TypeScript + Rust"
+
+commands:
+  check: "npm run check"
+  lint: "npm run lint"
+  typecheck: "npm run typecheck"
+  rust_lint: "npm run rust:lint"
+  rust_test: "npm run rust:test"
+
+rules:
+  - "read files and gather evidence before editing"
+  - "keep the TypeScript layer thin and Pi-facing"
+  - "put parsing and performance-sensitive logic in the Rust core"
+  - "keep lint policy centralized in config files rather than file-level overrides"
+  - "treat unused code as an error in both TypeScript and Rust"
+
+boundaries:
+  never_touch:
+    - "*.lock"
+    - ".env*"
+
+engine: "pi"
+max_retries: 3

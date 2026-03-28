@@ -1,0 +1,11 @@
+# ralphi
+.ralphi/*
+!.ralphi/config.yaml
+
+# node
+node_modules/
+dist/
+
+# rust
+rust/target/
+Cargo.lock

@@ -1,0 +1,38 @@
+[package]
+name = "pi-inline-format-core"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "pi_inline_format_core"
+path = "src/lib.rs"
+
+[[bin]]
+name = "pi-inline-format-core"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[lints.rust]
+unsafe_code = "forbid"
+dead_code = "deny"
+unused_imports = "deny"
+unused_variables = "deny"
+unused_mut = "deny"
+unused_lifetimes = "deny"
+unused_attributes = "deny"
+unused_must_use = "deny"
+warnings = "deny"
+rust_2018_idioms = { level = "deny", priority = -1 }
+rust_2021_prelude_collisions = "deny"
+missing_debug_implementations = "deny"
+missing_docs = "deny"
+
+[lints.clippy]
+all = "deny"
+pedantic = "deny"
+nursery = "deny"
+cargo = "deny"

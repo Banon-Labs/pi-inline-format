@@ -1,0 +1,50 @@
+{
+  "name": "pi-inline-format",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Strict Pi extension project with a Rust core subproject and a TypeScript extension wrapper.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "rust",
+    "typescript"
+  ],
+  "pi": {
+    "extensions": [
+      "./extensions/index.ts"
+    ]
+  },
+  "scripts": {
+    "check": "npm run lint && npm run format && npm run typecheck && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "rust:fmt": "cargo fmt --manifest-path rust/Cargo.toml --all --check",
+    "rust:fmt:write": "cargo fmt --manifest-path rust/Cargo.toml --all",
+    "rust:check": "cargo check --manifest-path rust/Cargo.toml --all-targets --all-features",
+    "rust:lint": "cargo clippy --manifest-path rust/Cargo.toml --all-targets --all-features -- -D warnings",
+    "rust:test": "cargo test --manifest-path rust/Cargo.toml --all-targets --all-features"
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*",
+    "@sinclair/typebox": "*"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@mariozechner/pi-coding-agent": "^0.63.1",
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "@sinclair/typebox": "^0.34.49",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "globals": "^17.4.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.57.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

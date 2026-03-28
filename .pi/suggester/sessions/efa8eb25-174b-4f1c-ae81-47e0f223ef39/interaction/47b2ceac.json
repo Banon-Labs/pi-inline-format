@@ -1,0 +1,30 @@
+{
+  "stateVersion": 9,
+  "pendingNextTurnObservation": {
+    "suggestionTurnId": "47b2ceac",
+    "suggestionShownAt": "2026-03-28T21:08:39.699Z",
+    "userPromptSubmittedAt": "2026-03-28T21:09:29.896Z",
+    "variantName": "default",
+    "strategy": "compact",
+    "requestedStrategy": "compact"
+  },
+  "steeringHistory": [
+    {
+      "turnId": "eb31f7f3",
+      "suggestedPrompt": "Yes—help me make Pi consistently emit fenced code blocks without needing an extension.",
+      "actualUserPrompt": "When you read a JS file, I can see the syntax colorization interestingly. It might be an issue because we are using bash to write pyhthong",
+      "classification": "changed_course",
+      "similarity": 0.21817765567765568,
+      "timestamp": "2026-03-28T21:08:28.453Z"
+    },
+    {
+      "turnId": "47b2ceac",
+      "suggestedPrompt": "Yes, build the small Pi extension for that.",
+      "actualUserPrompt": "Are you sure one doesn't already exists? And positive I don't have it? https://www.npmjs.com/search?q=keywords%3Api-package",
+      "classification": "changed_course",
+      "similarity": 0.14457831325301204,
+      "timestamp": "2026-03-28T21:09:29.896Z"
+    }
+  ],
+  "turnsSinceLastStalenessCheck": 2
+}

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "sessionId": "6c360a7c-2f86-46b8-84d9-085235be0b6c",
+  "sessionFile": "/home/choza/.pi/agent/sessions/--home-choza-projects-pi-inline-format--/2026-03-28T21-05-13-641Z_6c360a7c-2f86-46b8-84d9-085235be0b6c.jsonl",
+  "cwd": "/home/choza/projects/pi-inline-format",
+  "ignoreLegacyPiSessionEntries": true,
+  "legacyMigration": {
+    "performedAt": "2026-03-28T21:05:13.734Z",
+    "importedLegacyEntries": false,
+    "legacyStateEntryCount": 0,
+    "legacyUsageEntryCount": 0,
+    "note": "Legacy suggester-state/suggester-usage pi session entries were imported once into extension-owned storage and are ignored afterwards."
+  }
+}
