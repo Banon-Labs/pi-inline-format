@@ -30,7 +30,9 @@
       ],
       "priority": 2,
       "status": "done",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "notes": "Build initial nested-language detection on top of the contract."
     },
     {
@@ -44,9 +46,14 @@
         "npm run check passes."
       ],
       "priority": 3,
-      "status": "open",
-      "dependsOn": ["US-002"],
-      "notes": "Introduce extraction metadata needed for later wrapper/render integration."
+      "status": "done",
+      "dependsOn": [
+        "US-002"
+      ],
+      "notes": "Introduce extraction metadata needed for later wrapper/render integration.",
+      "startedAt": "2026-03-28T22:01:13.420Z",
+      "updatedAt": "2026-03-28T22:04:15Z",
+      "completedAt": "2026-03-28T22:04:15Z"
     },
     {
       "id": "US-004",
@@ -60,7 +67,9 @@
       ],
       "priority": 4,
       "status": "open",
-      "dependsOn": ["US-003"],
+      "dependsOn": [
+        "US-003"
+      ],
       "notes": "Keep the wrapper thin and integrate only after region extraction exists."
     },
     {
@@ -75,7 +84,9 @@
       ],
       "priority": 5,
       "status": "open",
-      "dependsOn": ["US-004"],
+      "dependsOn": [
+        "US-004"
+      ],
       "notes": "Consume the integrated structured output to produce Pi-facing rendering data."
     },
     {
@@ -90,7 +101,9 @@
       ],
       "priority": 6,
       "status": "open",
-      "dependsOn": ["US-001"],
+      "dependsOn": [
+        "US-001"
+      ],
       "notes": "Keep the contract and architecture generic without blocking initial Python-heredoc delivery."
     }
   ]

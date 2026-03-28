@@ -45,46 +45,79 @@ pub struct AnalyzeResponse {
     pub regions: Vec<TranscriptRegion>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct HeredocRegionMatch {
+    embedded_start: usize,
+    embedded_end: usize,
+}
+
 /// Inspect a transcript and return the stable analysis contract.
 #[must_use]
 pub fn analyze_transcript(request: &AnalyzeRequest) -> AnalyzeResponse {
     let transcript_length = request.transcript.len();
-    let outer_region = TranscriptRegion {
-        id: String::from("outer-0"),
-        role: RegionRole::Outer,
-        language: String::from("bash"),
-        start_byte: 0,
-        end_byte: transcript_length,
-    };
 
-    let mut regions = vec![outer_region];
-
-    if let Some(embedded_region) = find_python_heredoc_region(&request.transcript) {
-        regions.push(embedded_region);
-    }
+    let regions = find_python_heredoc_region(&request.transcript).map_or_else(
+        || vec![outer_region(0, 0, transcript_length)],
+        |heredoc_match| build_split_regions(transcript_length, heredoc_match),
+    );
 
     AnalyzeResponse { regions }
 }
 
-fn find_python_heredoc_region(transcript: &str) -> Option<TranscriptRegion> {
+fn build_split_regions(
+    transcript_length: usize,
+    heredoc_match: HeredocRegionMatch,
+) -> Vec<TranscriptRegion> {
+    let mut regions = Vec::with_capacity(3);
+
+    if heredoc_match.embedded_start > 0 {
+        regions.push(outer_region(0, 0, heredoc_match.embedded_start));
+    }
+
+    regions.push(TranscriptRegion {
+        id: String::from("embedded-0"),
+        role: RegionRole::Embedded,
+        language: String::from("python"),
+        start_byte: heredoc_match.embedded_start,
+        end_byte: heredoc_match.embedded_end,
+    });
+
+    if heredoc_match.embedded_end < transcript_length {
+        let trailing_outer_index = usize::from(!regions.is_empty());
+        regions.push(outer_region(
+            trailing_outer_index,
+            heredoc_match.embedded_end,
+            transcript_length,
+        ));
+    }
+
+    regions
+}
+
+fn outer_region(index: usize, start_byte: usize, end_byte: usize) -> TranscriptRegion {
+    TranscriptRegion {
+        id: format!("outer-{index}"),
+        role: RegionRole::Outer,
+        language: String::from("bash"),
+        start_byte,
+        end_byte,
+    }
+}
+
+fn find_python_heredoc_region(transcript: &str) -> Option<HeredocRegionMatch> {
     PYTHON_HEREDOC_MARKERS.iter().find_map(|marker| {
         let marker_start = transcript.find(marker)?;
         let marker_end = marker_start + marker.len();
-        let body_start_offset = transcript[marker_end..].find('\n')? + marker_end + 1;
-        let body_end = find_heredoc_terminator_start(&transcript[body_start_offset..])?
-            + body_start_offset;
+        let embedded_start = transcript[marker_end..].find('\n')? + marker_end + 1;
+        let embedded_end =
+            find_heredoc_terminator_start(&transcript[embedded_start..])?
+                + embedded_start;
 
-        if body_start_offset >= body_end {
+        if embedded_start >= embedded_end {
             return None;
         }
 
-        Some(TranscriptRegion {
-            id: String::from("embedded-0"),
-            role: RegionRole::Embedded,
-            language: String::from("python"),
-            start_byte: body_start_offset,
-            end_byte: body_end,
-        })
+        Some(HeredocRegionMatch { embedded_start, embedded_end })
     })
 }
 
@@ -130,19 +163,49 @@ mod tests {
     }
 
     #[test]
-    fn detects_python_heredoc_as_an_embedded_region() {
-        let transcript = String::from("$ python - <<'PY'\nprint('hi')\nPY\n");
+    fn separates_shell_wrapper_regions_from_embedded_python_code() {
+        let transcript = String::from(
+            "$ python - <<'PY'\nprint('hi')\nprint('bye')\nPY\n$ echo done\n",
+        );
         let request = AnalyzeRequest { transcript: transcript.clone() };
 
         let response = analyze_transcript(&request);
 
-        assert_eq!(response.regions.len(), 2);
-        assert_eq!(response.regions[0].language, "bash");
+        assert_eq!(response.regions.len(), 3);
+        assert_eq!(response.regions[0].role, RegionRole::Outer);
         assert_eq!(response.regions[1].language, "python");
         assert_eq!(response.regions[1].role, RegionRole::Embedded);
+        assert_eq!(response.regions[2].role, RegionRole::Outer);
+        assert_eq!(
+            &transcript[response.regions[0].start_byte..response.regions[0].end_byte],
+            "$ python - <<'PY'\n",
+        );
         assert_eq!(
             &transcript[response.regions[1].start_byte..response.regions[1].end_byte],
-            "print('hi')\n",
+            "print('hi')\nprint('bye')\n",
+        );
+        assert_eq!(
+            &transcript[response.regions[2].start_byte..response.regions[2].end_byte],
+            "PY\n$ echo done\n",
+        );
+    }
+
+    #[test]
+    fn ignores_incomplete_python_heredocs_when_no_terminator_exists() {
+        let transcript = String::from("$ python - <<'PY'\nprint('hi')\n$ echo done\n");
+        let request = AnalyzeRequest { transcript: transcript.clone() };
+
+        let response = analyze_transcript(&request);
+
+        assert_eq!(
+            response.regions,
+            vec![TranscriptRegion {
+                id: String::from("outer-0"),
+                role: RegionRole::Outer,
+                language: String::from("bash"),
+                start_byte: 0,
+                end_byte: transcript.len(),
+            }],
         );
     }
 

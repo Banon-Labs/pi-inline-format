@@ -2,6 +2,7 @@
 - Keep the Pi-facing TypeScript wrapper minimal and move transcript analysis contracts into the Rust crate.
 - Document stable Rust CLI JSON contracts in `README.md` when later iterations need to consume them from TypeScript.
 - Ignore `.pi/` local Pi state in git so Ralph commits stay focused on product code.
+- When separating transcript wrappers from embedded code, keep wrapper text as one or more ordered outer regions instead of leaving the embedded body inside a single bash span.
 
 ## 2026-03-28 21:35 UTC - US-001
 Session: N/A
@@ -30,4 +31,19 @@ Corrective Plan: N/A
 - **Learnings for future iterations:**
   - `find_map` is the cleanest strict-clippy-friendly way to scan multiple heredoc markers without tripping `never_loop`.
   - Detection can arrive before extraction: the current byte offsets are enough to prove nested-language presence before wrapper/content cleanup work in US-003.
+---
+
+## 2026-03-28 22:04 UTC - US-003
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Split bash wrapper content into ordered outer regions around the embedded Python heredoc body.
+- Added Rust tests that verify embedded extraction excludes heredoc markers and that incomplete heredocs fall back to a single outer bash region.
+- Documented the updated contract example in `README.md` so future wrapper work can consume separated wrapper and embedded spans.
+- Files changed: `rust/src/lib.rs`, `README.md`, `.ralphi/prd.json`, `.ralphi/progress.txt`
+- **Learnings for future iterations:**
+  - Wrapper separation is easiest to consume when outer regions keep the heredoc opener and terminator while the embedded region contains only the nested language body.
+  - Strict clippy settings favor `Option::map_or_else` over `if let` when building fallback region lists from an optional match.
 ---
