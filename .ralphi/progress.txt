@@ -1,33 +1,34 @@
 ## Codebase Patterns
-- Keep the Pi-facing TypeScript wrapper minimal and move transcript analysis contracts into the Rust crate.
-- Document stable Rust CLI JSON contracts in `README.md` when later iterations need to consume them from TypeScript.
-- Ignore `.pi/` local Pi state in git so Ralph commits stay focused on product code.
-
-## 2026-03-28 21:35 UTC - US-001
-Session: N/A
-Review Outcome: PASS
-Trajectory: ON_TRACK
-Trajectory Notes: N/A
-Corrective Plan: N/A
-- Defined a generic Rust transcript analysis contract with ordered `regions` and explicit `role` metadata.
-- Documented the JSON contract in `README.md` and reinforced the generic contract rule in `AGENTS.md`.
-- Files changed: `rust/src/lib.rs`, `README.md`, `AGENTS.md`
-- **Learnings for future iterations:**
-  - `RegionRole` is the stable place to distinguish outer transcript content from embedded code.
-  - Byte offsets are a better future-proof contract than Python-specific boolean flags.
+- Add reusable, project-wide implementation patterns here.
+- Use an ANSI-preserving `script -q -f <artifact>.typescript -c 'npx pi -e ./extensions/index.ts'` capture when tmux text alone is insufficient for color-aware Pi rendering proof.
 ---
 
-## 2026-03-28 21:45 UTC - US-002
-Session: N/A
+## PRD Run Context
+PRD Branch: ralph/normal-flow-visual-proof
+Started: 2026-03-28T23:34:01.623Z
+---
+
+## 2026-03-28 23:41 UTC - US-003
+Session: pi-inline-smoke (`script -q -f /tmp/pi-inline-format-us003.typescript -c 'npx pi -e ./extensions/index.ts'`)
 Review Outcome: PASS
 Trajectory: ON_TRACK
 Trajectory Notes: N/A
 Corrective Plan: N/A
-- Added Python heredoc detection in the Rust core so transcript analysis now returns both outer bash and embedded python regions.
-- Kept the contract generic by reusing `regions`, `role`, `language`, and byte offsets rather than adding Python-only response fields.
-- Ignored `.pi/` local session artifacts in git to keep future Ralph commits focused on repo code.
-- Files changed: `rust/src/lib.rs`, `README.md`, `.gitignore`, `.ralphi/prd.json`
+- Re-ran the canonical live Pi tmux validation prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`.
+- Captured a color-preserving proof artifact at `/tmp/pi-inline-format-us003.typescript` and verified it preserves ANSI styling for `Inline transcript rendering`, `bash wrapper · bash`, and `embedded code · python`.
+- Structural evidence from the live Pi session showed separate rendered sections in the normal flow:
+  - `Inline transcript rendering`
+  - `bash wrapper · bash`
+  - `embedded code · python`
+  - trailing `bash wrapper · bash`
+- Verified `/tmp/delete.me.py` was created and the rendered result remained distinct from the plain command output.
+- Ran `npm run check` successfully after formatting the tracked task and `.pi-lens/cache/*.json` artifacts that Prettier includes in this repo.
+- Files changed: `.ralphi/progress.txt`, `.ralphi/prd.json`, `tasks/prd-normal-flow-visual-proof.md`, `.pi-lens/cache/jscpd.json`, `.pi-lens/cache/jscpd.meta.json`, `.pi-lens/cache/knip.json`, `.pi-lens/cache/knip.meta.json`
 - **Learnings for future iterations:**
-  - `find_map` is the cleanest strict-clippy-friendly way to scan multiple heredoc markers without tripping `never_loop`.
-  - Detection can arrive before extraction: the current byte offsets are enough to prove nested-language presence before wrapper/content cleanup work in US-003.
+  - ANSI-preserving `script` captures are a practical equivalent direct visual proof method for Pi rendering when reviewers need durable syntax-color evidence from tmux-driven validation.
+  - For this repo, acceptance is only complete once the proof artifact is referenced in current progress notes, not only in archived loop output.
+---
+## 2026-03-28T23:49:28.879Z - Loop Auto-Completion (loop-b6dd4c6c)
+- Reason: No pending PRD stories remain (all stories are status=done).
+- Iteration count at stop: 0.
 ---

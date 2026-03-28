@@ -31,6 +31,10 @@ Individual commands:
 - Treat unused code as an error in both TypeScript and Rust.
 - Keep the Rust transcript contract generic: use regions, roles, and languages instead of Python-only result names.
 - Prefer project-local extension/package changes over broad Pi core rewrites unless evidence shows core changes are required.
+- Keep Rust CLI spawning, fallback resolution, and JSON shape validation in a dedicated helper so `extensions/index.ts` stays focused on Pi commands/tools.
+- For normal Pi user-flow rendering, prefer overriding the built-in `bash` tool with Rust-derived render metadata instead of relying on helper-only commands.
+- When extending nested-language detection, add or adjust Rust pattern descriptors (for example `NESTED_REGION_PATTERNS`) instead of changing the stable JSON contract or moving parsing into TypeScript.
+- When Pi-facing rendering needs readable output, derive markdown/code-fence formatting from Rust `render_blocks` rather than rebuilding transcript splitting logic in TypeScript.
 
 ## Directory Structure
 
