@@ -106,6 +106,7 @@ Contract notes:
 - `role` distinguishes outer transcript content from embedded code content.
 - `language` identifies the rendering language for each region or block.
 - `start_byte` and `end_byte` preserve original transcript boundaries for later extraction/rendering work.
+- The Rust core now drives detection through a generic `NESTED_REGION_PATTERNS` table, so future nested-language additions can plug in new pattern descriptors without changing the JSON contract shape.
 - For `python - <<'PY' ... PY`, the embedded Python region excludes the heredoc opener and terminator so wrapper content stays in outer bash regions while `render_blocks` expose a distinct Python block for display.
 - The first embedded-language detection case is `python - <<'PY' ... PY` inside a bash transcript.
 

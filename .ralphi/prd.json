@@ -92,8 +92,8 @@
       ],
       "notes": "Consume the integrated structured output to produce Pi-facing rendering data.",
       "startedAt": "2026-03-28T22:18:14.463Z",
-      "updatedAt": "2026-03-28T22:22:29Z",
-      "completedAt": "2026-03-28T22:22:29Z"
+      "updatedAt": "2026-03-28T22:24:26.404Z",
+      "completedAt": "2026-03-28T22:24:26.404Z"
     },
     {
       "id": "US-006",
@@ -106,11 +106,14 @@
         "npm run check passes."
       ],
       "priority": 6,
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-001"
       ],
-      "notes": "Keep the contract and architecture generic without blocking initial Python-heredoc delivery."
+      "notes": "Keep the contract and architecture generic without blocking initial Python-heredoc delivery.",
+      "startedAt": "2026-03-28T22:24:26.938Z",
+      "updatedAt": "2026-03-28T22:27:30Z",
+      "completedAt": "2026-03-28T22:27:30Z"
     }
   ]
 }

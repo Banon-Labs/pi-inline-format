@@ -5,6 +5,7 @@
 - When separating transcript wrappers from embedded code, keep wrapper text as one or more ordered outer regions instead of leaving the embedded body inside a single bash span.
 - When a TypeScript wrapper can reuse `rust/target` binaries, guard that fast path with a freshness check so stale debug binaries do not silently drift from the Rust sources.
 - When Pi-facing output needs separate code fences, keep the markdown formatting as a pure projection of Rust `render_blocks` so TypeScript does not re-split transcripts.
+- Keep nested-language detection extensible by expressing each supported transcript shape as a Rust pattern descriptor and leaving the `regions`/`render_blocks` contract unchanged.
 
 ## 2026-03-28 21:35 UTC - US-001
 Session: N/A
@@ -79,4 +80,19 @@ Corrective Plan: N/A
 - **Learnings for future iterations:**
   - Rendering-friendly transcript output can stay generic by pairing byte-oriented `regions` with extracted `render_blocks` instead of inventing Python-specific fields.
   - TypeScript can stay thin when it only formats the Rust-provided `render_blocks` into Pi-friendly markdown/code fences.
+---
+
+## 2026-03-28 22:27 UTC - US-006
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Refactored Rust nested-language detection around a generic `NESTED_REGION_PATTERNS` table plus reusable pattern structs instead of a Python-only helper path.
+- Kept the JSON contract stable by continuing to emit generic `regions` and `render_blocks` while documenting the extension path in `README.md` and `AGENTS.md`.
+- Added a Rust test that locks in the pattern-table architecture so future nested-language additions can extend descriptors without reshaping the interface.
+- Files changed: `rust/src/lib.rs`, `README.md`, `AGENTS.md`, `.ralphi/prd.json`, `.ralphi/progress.txt`
+- **Learnings for future iterations:**
+  - Generic pattern descriptors are a better scaling point than adding language-specific detection functions for every nested transcript shape.
+  - The safest way to grow support is to plug new Rust patterns into the detector while keeping TypeScript as a pure consumer of the stable Rust contract.
 ---
