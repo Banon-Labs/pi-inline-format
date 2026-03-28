@@ -31,6 +31,7 @@ Individual commands:
 - Treat unused code as an error in both TypeScript and Rust.
 - Keep the Rust transcript contract generic: use regions, roles, and languages instead of Python-only result names.
 - Prefer project-local extension/package changes over broad Pi core rewrites unless evidence shows core changes are required.
+- Keep Rust CLI spawning, fallback resolution, and JSON shape validation in a dedicated helper so `extensions/index.ts` stays focused on Pi commands/tools.
 
 ## Directory Structure
 

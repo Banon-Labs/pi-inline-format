@@ -88,6 +88,23 @@ Contract notes:
 - For `python - <<'PY' ... PY`, the embedded Python region excludes the heredoc opener and terminator so wrapper content stays in outer bash regions.
 - The first embedded-language detection case is `python - <<'PY' ... PY` inside a bash transcript.
 
+## TypeScript wrapper integration
+
+The Pi extension keeps TypeScript Pi-facing and delegates transcript analysis to `extensions/rust-cli.ts`.
+That helper:
+
+- prefers a fresh Rust CLI binary from `rust/target/...` when one is newer than the Rust sources,
+- falls back to `cargo run --manifest-path rust/Cargo.toml --quiet --bin pi-inline-format-core` when no fresh binary is available,
+- sends the raw transcript to stdin,
+- validates the JSON response shape before returning it to the Pi-facing layer,
+- includes the invoked command in thrown errors so integration failures are easier to debug.
+
+Pi-facing entrypoints exposed from `extensions/index.ts`:
+
+- `/inline-format-status` — reports that the thin wrapper is wired to the Rust CLI.
+- `/inline-format-analyze` — analyzes either the provided transcript argument or a built-in heredoc sample.
+- `analyze_inline_transcript` — Pi tool that returns the Rust JSON contract for a raw transcript.
+
 ## Pi package notes
 
 This project is configured as a Pi package via the `pi.extensions` entry in `package.json`.

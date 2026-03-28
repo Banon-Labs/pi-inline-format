@@ -52,8 +52,8 @@
       ],
       "notes": "Introduce extraction metadata needed for later wrapper/render integration.",
       "startedAt": "2026-03-28T22:01:13.420Z",
-      "updatedAt": "2026-03-28T22:04:15Z",
-      "completedAt": "2026-03-28T22:04:15Z"
+      "updatedAt": "2026-03-28T22:06:20.092Z",
+      "completedAt": "2026-03-28T22:06:20.092Z"
     },
     {
       "id": "US-004",
@@ -66,11 +66,14 @@
         "npm run check passes."
       ],
       "priority": 4,
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-003"
       ],
-      "notes": "Keep the wrapper thin and integrate only after region extraction exists."
+      "notes": "Keep the wrapper thin and integrate only after region extraction exists.",
+      "startedAt": "2026-03-28T22:06:20.580Z",
+      "updatedAt": "2026-03-28T22:14:10Z",
+      "completedAt": "2026-03-28T22:14:10Z"
     },
     {
       "id": "US-005",

@@ -3,6 +3,7 @@
 - Document stable Rust CLI JSON contracts in `README.md` when later iterations need to consume them from TypeScript.
 - Ignore `.pi/` local Pi state in git so Ralph commits stay focused on product code.
 - When separating transcript wrappers from embedded code, keep wrapper text as one or more ordered outer regions instead of leaving the embedded body inside a single bash span.
+- When a TypeScript wrapper can reuse `rust/target` binaries, guard that fast path with a freshness check so stale debug binaries do not silently drift from the Rust sources.
 
 ## 2026-03-28 21:35 UTC - US-001
 Session: N/A
@@ -46,4 +47,20 @@ Corrective Plan: N/A
 - **Learnings for future iterations:**
   - Wrapper separation is easiest to consume when outer regions keep the heredoc opener and terminator while the embedded region contains only the nested language body.
   - Strict clippy settings favor `Option::map_or_else` over `if let` when building fallback region lists from an optional match.
+---
+
+## 2026-03-28 22:14 UTC - US-004
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Added a dedicated `extensions/rust-cli.ts` helper that runs the Rust CLI, validates the JSON contract, and reports command-level failures clearly.
+- Kept `extensions/index.ts` Pi-facing by wiring the Rust helper into one slash command, one tool, and a lightweight status command instead of duplicating transcript parsing in TypeScript.
+- Added a freshness guard so stale `rust/target` binaries fall back to `cargo run` instead of returning outdated analysis results.
+- Documented the wrapper integration in `README.md` and captured the helper pattern in `AGENTS.md`.
+- Files changed: `extensions/index.ts`, `extensions/rust-cli.ts`, `README.md`, `AGENTS.md`, `.ralphi/prd.json`, `.ralphi/progress.txt`
+- **Learnings for future iterations:**
+  - A dedicated Rust CLI helper keeps Pi command/tool registration small while still surfacing invocation details for debugging.
+  - Reusing an existing `target/debug` binary is unsafe without a freshness check because `cargo test` and `cargo check` can leave a stale standalone binary behind.
 ---
