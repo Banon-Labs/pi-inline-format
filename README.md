@@ -59,7 +59,14 @@ The Rust CLI reads raw transcript text from stdin and prints JSON shaped like:
       "role": "outer",
       "language": "bash",
       "start_byte": 0,
-      "end_byte": 42
+      "end_byte": 35
+    },
+    {
+      "id": "embedded-0",
+      "role": "embedded",
+      "language": "python",
+      "start_byte": 18,
+      "end_byte": 30
     }
   ]
 }
@@ -71,6 +78,7 @@ Contract notes:
 - `role` distinguishes outer transcript content from embedded code content.
 - `language` identifies the rendering language for each region.
 - `start_byte` and `end_byte` preserve original transcript boundaries for later extraction/rendering work.
+- The first embedded-language detection case is `python - <<'PY' ... PY` inside a bash transcript.
 
 ## Pi package notes
 

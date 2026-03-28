@@ -1,6 +1,11 @@
+# local pi state
+.pi/
+
 # ralphi
 .ralphi/*
 !.ralphi/config.yaml
+!.ralphi/prd.json
+!.ralphi/progress.txt
 
 # node
 node_modules/

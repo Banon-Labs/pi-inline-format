@@ -1,0 +1,33 @@
+## Codebase Patterns
+- Keep the Pi-facing TypeScript wrapper minimal and move transcript analysis contracts into the Rust crate.
+- Document stable Rust CLI JSON contracts in `README.md` when later iterations need to consume them from TypeScript.
+- Ignore `.pi/` local Pi state in git so Ralph commits stay focused on product code.
+
+## 2026-03-28 21:35 UTC - US-001
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Defined a generic Rust transcript analysis contract with ordered `regions` and explicit `role` metadata.
+- Documented the JSON contract in `README.md` and reinforced the generic contract rule in `AGENTS.md`.
+- Files changed: `rust/src/lib.rs`, `README.md`, `AGENTS.md`
+- **Learnings for future iterations:**
+  - `RegionRole` is the stable place to distinguish outer transcript content from embedded code.
+  - Byte offsets are a better future-proof contract than Python-specific boolean flags.
+---
+
+## 2026-03-28 21:45 UTC - US-002
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Added Python heredoc detection in the Rust core so transcript analysis now returns both outer bash and embedded python regions.
+- Kept the contract generic by reusing `regions`, `role`, `language`, and byte offsets rather than adding Python-only response fields.
+- Ignored `.pi/` local session artifacts in git to keep future Ralph commits focused on repo code.
+- Files changed: `rust/src/lib.rs`, `README.md`, `.gitignore`, `.ralphi/prd.json`
+- **Learnings for future iterations:**
+  - `find_map` is the cleanest strict-clippy-friendly way to scan multiple heredoc markers without tripping `never_loop`.
+  - Detection can arrive before extraction: the current byte offsets are enough to prove nested-language presence before wrapper/content cleanup work in US-003.
+---

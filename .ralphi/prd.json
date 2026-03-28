@@ -1,0 +1,97 @@
+{
+  "project": "pi-inline-format",
+  "branchName": "ralph/thin-pi-wrapper-plus-rust-core-for-inline-heredoc-rendering",
+  "description": "Build a thin Pi TypeScript wrapper and a Rust core that detect and structure nested transcript code blocks, starting with Python heredocs inside bash output.",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Define the Rust transcript analysis contract",
+      "description": "As a developer, I want a stable Rust CLI contract for transcript analysis so that the Pi extension can depend on a strict, testable parsing interface.",
+      "acceptanceCriteria": [
+        "The Rust core accepts transcript input and returns structured JSON describing detected language regions.",
+        "The JSON schema includes enough information to distinguish outer transcript language from embedded code language.",
+        "The contract is documented in repo docs or code comments where future iterations can find it.",
+        "npm run check passes."
+      ],
+      "priority": 1,
+      "status": "done",
+      "dependsOn": [],
+      "notes": "Establish the generic contract before deeper parsing or rendering work."
+    },
+    {
+      "id": "US-002",
+      "title": "Detect nested language regions from transcript-like Pi output",
+      "description": "As a user, I want nested language regions detected from Pi-style transcript text so that embedded code can be rendered correctly.",
+      "acceptanceCriteria": [
+        "The Rust core detects at least one embedded language inside a shell transcript containing a heredoc.",
+        "A transcript containing python - <<'PY' ... PY is identified as containing both bash and python regions.",
+        "The detection logic is covered by Rust tests for at least one positive and one negative case.",
+        "npm run check passes."
+      ],
+      "priority": 2,
+      "status": "done",
+      "dependsOn": ["US-001"],
+      "notes": "Build initial nested-language detection on top of the contract."
+    },
+    {
+      "id": "US-003",
+      "title": "Separate shell wrapper content from embedded code content",
+      "description": "As a user, I want the shell wrapper and the embedded code separated so that the Python body is not treated as plain bash text.",
+      "acceptanceCriteria": [
+        "The analysis output contains region boundaries or equivalent metadata for wrapper-versus-embedded content.",
+        "The extracted embedded code text for a Python heredoc excludes heredoc markers and shell prompt noise when appropriate.",
+        "The extraction behavior is covered by tests.",
+        "npm run check passes."
+      ],
+      "priority": 3,
+      "status": "open",
+      "dependsOn": ["US-002"],
+      "notes": "Introduce extraction metadata needed for later wrapper/render integration."
+    },
+    {
+      "id": "US-004",
+      "title": "Integrate the Rust CLI through a thin Pi extension wrapper",
+      "description": "As a developer, I want the Pi extension to call the Rust CLI through a minimal wrapper so that TypeScript remains Pi-facing and small.",
+      "acceptanceCriteria": [
+        "The TypeScript extension invokes the Rust CLI instead of reimplementing parsing logic in TypeScript.",
+        "TypeScript only maps Pi-facing input/output and does not duplicate transcript parsing logic.",
+        "Integration errors are surfaced clearly enough for debugging.",
+        "npm run check passes."
+      ],
+      "priority": 4,
+      "status": "open",
+      "dependsOn": ["US-003"],
+      "notes": "Keep the wrapper thin and integrate only after region extraction exists."
+    },
+    {
+      "id": "US-005",
+      "title": "Render embedded code as a distinct language-aware output block",
+      "description": "As a user, I want embedded Python code shown separately from the surrounding bash transcript so that inline output is easier to read.",
+      "acceptanceCriteria": [
+        "A bash transcript with an embedded Python heredoc produces a distinct Python-oriented rendered block or equivalent structured output used for rendering.",
+        "The surrounding bash wrapper remains available without collapsing the embedded code back into plain shell text.",
+        "The first supported example is demonstrated with a Python heredoc inside bash output.",
+        "npm run check passes."
+      ],
+      "priority": 5,
+      "status": "open",
+      "dependsOn": ["US-004"],
+      "notes": "Consume the integrated structured output to produce Pi-facing rendering data."
+    },
+    {
+      "id": "US-006",
+      "title": "Generalize the design for more nested-language patterns",
+      "description": "As a developer, I want the architecture to support additional nested-language transcript patterns later so that the implementation does not lock into Python-only assumptions.",
+      "acceptanceCriteria": [
+        "The Rust analysis model does not hardcode a Python-only result shape.",
+        "The implementation documents or encodes a path for supporting additional nested-language patterns later.",
+        "At least one part of the interface uses generic naming such as regions, languages, or blocks rather than Python-specific terminology.",
+        "npm run check passes."
+      ],
+      "priority": 6,
+      "status": "open",
+      "dependsOn": ["US-001"],
+      "notes": "Keep the contract and architecture generic without blocking initial Python-heredoc delivery."
+    }
+  ]
+}
