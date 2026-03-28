@@ -38,11 +38,26 @@ pub struct TranscriptRegion {
     pub end_byte: usize,
 }
 
+/// Describe one render-ready block derived from analyzed transcript regions.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RenderBlock {
+    /// Stable identifier for this block within a single response.
+    pub id: String,
+    /// Whether this block represents wrapper transcript content or embedded code.
+    pub role: RegionRole,
+    /// Language that a renderer should use for this block.
+    pub language: String,
+    /// Extracted block content for direct rendering.
+    pub content: String,
+}
+
 /// Summarize the transcript analysis output returned by the Rust core.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct AnalyzeResponse {
     /// Ordered language-aware regions describing the transcript structure.
     pub regions: Vec<TranscriptRegion>,
+    /// Ordered render-ready blocks that preserve wrapper/code separation.
+    pub render_blocks: Vec<RenderBlock>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -60,8 +75,9 @@ pub fn analyze_transcript(request: &AnalyzeRequest) -> AnalyzeResponse {
         || vec![outer_region(0, 0, transcript_length)],
         |heredoc_match| build_split_regions(transcript_length, heredoc_match),
     );
+    let render_blocks = build_render_blocks(&request.transcript, &regions);
 
-    AnalyzeResponse { regions }
+    AnalyzeResponse { regions, render_blocks }
 }
 
 fn build_split_regions(
@@ -92,6 +108,21 @@ fn build_split_regions(
     }
 
     regions
+}
+
+fn build_render_blocks(
+    transcript: &str,
+    regions: &[TranscriptRegion],
+) -> Vec<RenderBlock> {
+    regions
+        .iter()
+        .map(|region| RenderBlock {
+            id: region.id.clone(),
+            role: region.role,
+            language: region.language.clone(),
+            content: transcript[region.start_byte..region.end_byte].to_string(),
+        })
+        .collect()
 }
 
 fn outer_region(index: usize, start_byte: usize, end_byte: usize) -> TranscriptRegion {
@@ -141,7 +172,9 @@ fn find_heredoc_terminator_start(transcript: &str) -> Option<usize> {
 
 #[cfg(test)]
 mod tests {
-    use super::{AnalyzeRequest, RegionRole, TranscriptRegion, analyze_transcript};
+    use super::{
+        AnalyzeRequest, RegionRole, RenderBlock, TranscriptRegion, analyze_transcript,
+    };
 
     #[test]
     fn returns_a_stable_outer_region_contract() {
@@ -158,6 +191,15 @@ mod tests {
                 language: String::from("bash"),
                 start_byte: 0,
                 end_byte: transcript.len(),
+            }],
+        );
+        assert_eq!(
+            response.render_blocks,
+            vec![RenderBlock {
+                id: String::from("outer-0"),
+                role: RegionRole::Outer,
+                language: String::from("bash"),
+                content: transcript,
             }],
         );
     }
@@ -187,6 +229,42 @@ mod tests {
         assert_eq!(
             &transcript[response.regions[2].start_byte..response.regions[2].end_byte],
             "PY\n$ echo done\n",
+        );
+    }
+
+    #[test]
+    fn produces_distinct_render_blocks_for_wrapper_and_embedded_code() {
+        let request = AnalyzeRequest {
+            transcript: String::from(
+                "$ python - <<'PY'\nprint('hi')\nPY\n$ echo done\n",
+            ),
+        };
+
+        let response = analyze_transcript(&request);
+
+        assert_eq!(response.render_blocks.len(), 3);
+        assert_eq!(
+            response.render_blocks,
+            vec![
+                RenderBlock {
+                    id: String::from("outer-0"),
+                    role: RegionRole::Outer,
+                    language: String::from("bash"),
+                    content: String::from("$ python - <<'PY'\n"),
+                },
+                RenderBlock {
+                    id: String::from("embedded-0"),
+                    role: RegionRole::Embedded,
+                    language: String::from("python"),
+                    content: String::from("print('hi')\n"),
+                },
+                RenderBlock {
+                    id: String::from("outer-1"),
+                    role: RegionRole::Outer,
+                    language: String::from("bash"),
+                    content: String::from("PY\n$ echo done\n"),
+                },
+            ],
         );
     }
 

@@ -72,8 +72,8 @@
       ],
       "notes": "Keep the wrapper thin and integrate only after region extraction exists.",
       "startedAt": "2026-03-28T22:06:20.580Z",
-      "updatedAt": "2026-03-28T22:14:10Z",
-      "completedAt": "2026-03-28T22:14:10Z"
+      "updatedAt": "2026-03-28T22:18:13.878Z",
+      "completedAt": "2026-03-28T22:18:13.878Z"
     },
     {
       "id": "US-005",
@@ -86,11 +86,14 @@
         "npm run check passes."
       ],
       "priority": 5,
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-004"
       ],
-      "notes": "Consume the integrated structured output to produce Pi-facing rendering data."
+      "notes": "Consume the integrated structured output to produce Pi-facing rendering data.",
+      "startedAt": "2026-03-28T22:18:14.463Z",
+      "updatedAt": "2026-03-28T22:22:29Z",
+      "completedAt": "2026-03-28T22:22:29Z"
     },
     {
       "id": "US-006",

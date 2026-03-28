@@ -13,8 +13,16 @@ export type TranscriptRegion = {
   end_byte: number;
 };
 
+export type RenderBlock = {
+  id: string;
+  role: RegionRole;
+  language: string;
+  content: string;
+};
+
 export type AnalyzeResponse = {
   regions: TranscriptRegion[];
+  render_blocks: RenderBlock[];
 };
 
 type RustCliInvocation = {
@@ -196,8 +204,13 @@ function isAnalyzeResponse(value: unknown): value is AnalyzeResponse {
   }
 
   const regions = value["regions"];
+  const renderBlocks = value["render_blocks"];
+
   return (
-    Array.isArray(regions) && regions.every((region) => isTranscriptRegion(region))
+    Array.isArray(regions) &&
+    regions.every((region) => isTranscriptRegion(region)) &&
+    Array.isArray(renderBlocks) &&
+    renderBlocks.every((block) => isRenderBlock(block))
   );
 }
 
@@ -218,6 +231,24 @@ function isTranscriptRegion(value: unknown): value is TranscriptRegion {
     typeof language === "string" &&
     Number.isInteger(startByte) &&
     Number.isInteger(endByte)
+  );
+}
+
+function isRenderBlock(value: unknown): value is RenderBlock {
+  if (!isRecord(value)) {
+    return false;
+  }
+
+  const id = value["id"];
+  const role = value["role"];
+  const language = value["language"];
+  const content = value["content"];
+
+  return (
+    typeof id === "string" &&
+    (role === "outer" || role === "embedded") &&
+    typeof language === "string" &&
+    typeof content === "string"
   );
 }
 

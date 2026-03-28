@@ -4,6 +4,7 @@
 - Ignore `.pi/` local Pi state in git so Ralph commits stay focused on product code.
 - When separating transcript wrappers from embedded code, keep wrapper text as one or more ordered outer regions instead of leaving the embedded body inside a single bash span.
 - When a TypeScript wrapper can reuse `rust/target` binaries, guard that fast path with a freshness check so stale debug binaries do not silently drift from the Rust sources.
+- When Pi-facing output needs separate code fences, keep the markdown formatting as a pure projection of Rust `render_blocks` so TypeScript does not re-split transcripts.
 
 ## 2026-03-28 21:35 UTC - US-001
 Session: N/A
@@ -63,4 +64,19 @@ Corrective Plan: N/A
 - **Learnings for future iterations:**
   - A dedicated Rust CLI helper keeps Pi command/tool registration small while still surfacing invocation details for debugging.
   - Reusing an existing `target/debug` binary is unsafe without a freshness check because `cargo test` and `cargo check` can leave a stale standalone binary behind.
+---
+
+## 2026-03-28 22:22 UTC - US-005
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Added generic Rust `render_blocks` alongside `regions` so bash wrapper text and embedded Python code can render as distinct language-aware blocks.
+- Added Pi-facing `/inline-format-render` and `render_inline_transcript` entrypoints that project Rust `render_blocks` into markdown code fences without duplicating transcript parsing in TypeScript.
+- Expanded the Rust/TypeScript contract docs and shape validation so downstream consumers can rely on the new rendering data.
+- Files changed: `rust/src/lib.rs`, `extensions/rust-cli.ts`, `extensions/index.ts`, `README.md`, `AGENTS.md`, `.ralphi/prd.json`, `.ralphi/progress.txt`
+- **Learnings for future iterations:**
+  - Rendering-friendly transcript output can stay generic by pairing byte-oriented `regions` with extracted `render_blocks` instead of inventing Python-specific fields.
+  - TypeScript can stay thin when it only formats the Rust-provided `render_blocks` into Pi-friendly markdown/code fences.
 ---
