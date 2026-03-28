@@ -7,6 +7,8 @@
 - When Pi-facing output needs separate code fences, keep the markdown formatting as a pure projection of Rust `render_blocks` so TypeScript does not re-split transcripts.
 - Keep nested-language detection extensible by expressing each supported transcript shape as a Rust pattern descriptor and leaving the `regions`/`render_blocks` contract unchanged.
 
+- For normal Pi user-flow proof, override the built-in `bash` tool renderer and feed it Rust-derived render metadata from the command text so helper commands are not the only validation path.
+
 ## 2026-03-28 21:35 UTC - US-001
 Session: N/A
 Review Outcome: PASS
@@ -107,4 +109,25 @@ Corrective Plan: N/A
 - Added US-007 to `.ralphi/prd.json` so the next loop iteration targets automatic normal Pi flow integration plus structural and visual proof.
 - **Learnings for future iterations:**
   - Helper-command success is not sufficient completion evidence for this repo; the PRD must keep a dedicated open story for normal-flow rendering proof.
+---
+## 2026-03-28 23:12 UTC - US-007
+Session: pi-inline-smoke (`script -q -f /tmp/pi-inline-format-us007.typescript -c 'npx pi -e ./extensions/index.ts'`)
+Review Outcome: PASS
+Trajectory: RISK
+Trajectory Notes: Acceptance criteria passed in the local Pi 0.63.1 tmux smoke flow, but unrelated globally installed extensions (`pi-lens`, `@guwidoe/pi-prompt-suggester`) emitted compatibility noise during validation.
+Corrective Plan: N/A
+- Overrode the built-in `bash` tool renderer in `extensions/index.ts` so normal Pi sessions render Rust-derived heredoc structure as separate bash-wrapper and embedded-python sections instead of relying on helper-only commands.
+- Generalized the Rust heredoc markers in `rust/src/lib.rs` so canonical `cat > /tmp/delete.me.py <<'PY' ... PY` bash flows are split into wrapper and embedded blocks, then added coverage for that path.
+- Documented the normal-flow renderer approach in `README.md` and `AGENTS.md`.
+- Files changed: `extensions/index.ts`, `rust/src/lib.rs`, `README.md`, `AGENTS.md`, `.ralphi/prd.json`, `.ralphi/progress.txt`
+- Normal-flow proof used the canonical prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+- Structural evidence from tmux capture showed:
+  - `Inline transcript rendering`
+  - `bash wrapper · bash`
+  - `embedded code · python`
+  - trailing `bash wrapper · bash`
+- Color-preserving proof artifact: `/tmp/pi-inline-format-us007.typescript` (`file` reports UTF-8 text with escape sequences, and the artifact includes ANSI color codes for the rendered bash/python sections).
+- **Learnings for future iterations:**
+  - Built-in tool overrides are the smallest reliable way to prove rendering in the real Pi flow because they let the normal tool UI consume Rust-derived structure directly.
+  - Canonical file-writing heredoc prompts need Rust detection that keys off heredoc markers themselves, not only `python - <<'PY'` command prefixes.
 ---

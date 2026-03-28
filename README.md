@@ -17,7 +17,7 @@ Strict Pi extension project scaffold with:
 ```text
 pi-inline-format/
 ├── extensions/        # Pi extension entrypoint(s)
-├── rust/              # Rust core crate
+├── rust/              # Rust core subproject
 ├── .ralphi/           # Ralph loop config/runtime files
 ├── eslint.config.mjs
 ├── package.json
@@ -109,6 +109,7 @@ Contract notes:
 - The Rust core now drives detection through a generic `NESTED_REGION_PATTERNS` table, so future nested-language additions can plug in new pattern descriptors without changing the JSON contract shape.
 - For `python - <<'PY' ... PY`, the embedded Python region excludes the heredoc opener and terminator so wrapper content stays in outer bash regions while `render_blocks` expose a distinct Python block for display.
 - The first embedded-language detection case is `python - <<'PY' ... PY` inside a bash transcript.
+- The same `PY` heredoc split also supports plain bash file-writing flows such as `cat > /tmp/delete.me.py <<'PY' ... PY`, which is the canonical normal-flow validation prompt for this repo.
 
 ## TypeScript wrapper integration
 
@@ -128,6 +129,7 @@ Pi-facing entrypoints exposed from `extensions/index.ts`:
 - `/inline-format-render` — renders the transcript as distinct language-aware markdown code fences derived from Rust `render_blocks`.
 - `analyze_inline_transcript` — Pi tool that returns the full Rust JSON contract for a raw transcript.
 - `render_inline_transcript` — Pi tool that returns markdown-ready output plus structured `render_blocks` for downstream rendering.
+- an overridden built-in `bash` renderer — automatically projects Rust-derived heredoc structure into separate bash-wrapper and embedded-code sections during the normal Pi user flow.
 
 ## Pi package notes
 

@@ -3,8 +3,7 @@
 use serde::{Deserialize, Serialize};
 
 const OUTER_LANGUAGE: &str = "bash";
-const PYTHON_HEREDOC_MARKERS: [&str; 3] =
-    ["python - <<'PY'", "python - <<\"PY\"", "python - <<PY"];
+const PYTHON_HEREDOC_MARKERS: [&str; 3] = ["<<'PY'", "<<\"PY\"", "<<PY"];
 const NESTED_REGION_PATTERNS: [NestedRegionPattern; 1] = [NestedRegionPattern {
     id_prefix: "embedded",
     outer_language: OUTER_LANGUAGE,
@@ -285,6 +284,28 @@ mod tests {
                 content: transcript,
             }],
         );
+    }
+
+    #[test]
+    fn separates_python_file_heredocs_in_plain_bash_commands() {
+        let transcript = String::from(
+            "cat > /tmp/delete.me.py <<'PY'\nprint('hi')\nprint('bye')\nPY\npython /tmp/delete.me.py\n",
+        );
+        let request = AnalyzeRequest { transcript };
+
+        let response = analyze_transcript(&request);
+
+        assert_eq!(response.render_blocks.len(), 3);
+        assert_eq!(response.render_blocks[0].role, RegionRole::Outer);
+        assert_eq!(response.render_blocks[1].role, RegionRole::Embedded);
+        assert_eq!(response.render_blocks[1].language, "python");
+        assert_eq!(response.render_blocks[2].role, RegionRole::Outer);
+        assert_eq!(
+            response.render_blocks[0].content,
+            "cat > /tmp/delete.me.py <<'PY'\n"
+        );
+        assert_eq!(response.render_blocks[1].content, "print('hi')\nprint('bye')\n");
+        assert_eq!(response.render_blocks[2].content, "PY\npython /tmp/delete.me.py\n");
     }
 
     #[test]

@@ -133,12 +133,15 @@
         "npm run check passes."
       ],
       "priority": 7,
-      "status": "open",
+      "status": "done",
       "dependsOn": [
         "US-004",
         "US-005"
       ],
-      "notes": "This story corrects the gap between helper-command success and real Pi user-flow success for the repo's core feature."
+      "notes": "This story corrects the gap between helper-command success and real Pi user-flow success for the repo's core feature.",
+      "startedAt": "2026-03-28T22:56:54.646Z",
+      "updatedAt": "2026-03-28T23:12:00Z",
+      "completedAt": "2026-03-28T23:12:00Z"
     }
   ]
 }
