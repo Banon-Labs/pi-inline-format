@@ -96,3 +96,15 @@ Corrective Plan: N/A
   - Generic pattern descriptors are a better scaling point than adding language-specific detection functions for every nested transcript shape.
   - The safest way to grow support is to plug new Rust patterns into the detector while keeping TypeScript as a pure consumer of the stable Rust contract.
 ---
+
+## 2026-03-28 22:51 UTC - Loop Correction
+Session: N/A
+Review Outcome: PASS
+Trajectory: ON_TRACK
+Trajectory Notes: N/A
+Corrective Plan: N/A
+- Corrected Ralph source-of-truth state after the loop auto-completed with all stories marked done even though the repo's core normal-flow rendering proof is still missing.
+- Added US-007 to `.ralphi/prd.json` so the next loop iteration targets automatic normal Pi flow integration plus structural and visual proof.
+- **Learnings for future iterations:**
+  - Helper-command success is not sufficient completion evidence for this repo; the PRD must keep a dedicated open story for normal-flow rendering proof.
+---

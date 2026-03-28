@@ -16,7 +16,10 @@
       "priority": 1,
       "status": "done",
       "dependsOn": [],
-      "notes": "Establish the generic contract before deeper parsing or rendering work."
+      "notes": "Establish the generic contract before deeper parsing or rendering work.",
+      "startedAt": "2026-03-28T21:35:00Z",
+      "updatedAt": "2026-03-28T21:35:00Z",
+      "completedAt": "2026-03-28T21:35:00Z"
     },
     {
       "id": "US-002",
@@ -33,7 +36,10 @@
       "dependsOn": [
         "US-001"
       ],
-      "notes": "Build initial nested-language detection on top of the contract."
+      "notes": "Build initial nested-language detection on top of the contract.",
+      "startedAt": "2026-03-28T21:45:00Z",
+      "updatedAt": "2026-03-28T21:45:00Z",
+      "completedAt": "2026-03-28T21:45:00Z"
     },
     {
       "id": "US-003",
@@ -51,9 +57,9 @@
         "US-002"
       ],
       "notes": "Introduce extraction metadata needed for later wrapper/render integration.",
-      "startedAt": "2026-03-28T22:01:13.420Z",
-      "updatedAt": "2026-03-28T22:06:20.092Z",
-      "completedAt": "2026-03-28T22:06:20.092Z"
+      "startedAt": "2026-03-28T22:04:00Z",
+      "updatedAt": "2026-03-28T22:04:00Z",
+      "completedAt": "2026-03-28T22:04:00Z"
     },
     {
       "id": "US-004",
@@ -71,9 +77,9 @@
         "US-003"
       ],
       "notes": "Keep the wrapper thin and integrate only after region extraction exists.",
-      "startedAt": "2026-03-28T22:06:20.580Z",
-      "updatedAt": "2026-03-28T22:18:13.878Z",
-      "completedAt": "2026-03-28T22:18:13.878Z"
+      "startedAt": "2026-03-28T22:14:00Z",
+      "updatedAt": "2026-03-28T22:14:00Z",
+      "completedAt": "2026-03-28T22:14:00Z"
     },
     {
       "id": "US-005",
@@ -91,9 +97,9 @@
         "US-004"
       ],
       "notes": "Consume the integrated structured output to produce Pi-facing rendering data.",
-      "startedAt": "2026-03-28T22:18:14.463Z",
-      "updatedAt": "2026-03-28T22:24:26.404Z",
-      "completedAt": "2026-03-28T22:24:26.404Z"
+      "startedAt": "2026-03-28T22:22:00Z",
+      "updatedAt": "2026-03-28T22:22:00Z",
+      "completedAt": "2026-03-28T22:22:00Z"
     },
     {
       "id": "US-006",
@@ -111,9 +117,28 @@
         "US-001"
       ],
       "notes": "Keep the contract and architecture generic without blocking initial Python-heredoc delivery.",
-      "startedAt": "2026-03-28T22:24:26.938Z",
+      "startedAt": "2026-03-28T22:27:30Z",
       "updatedAt": "2026-03-28T22:27:30Z",
       "completedAt": "2026-03-28T22:27:30Z"
+    },
+    {
+      "id": "US-007",
+      "title": "Apply transcript rendering in the normal Pi user flow with visual proof",
+      "description": "As a user, I want the normal Pi interaction flow to automatically present embedded heredoc code as distinct language-aware output so that I do not need helper commands to see the feature.",
+      "acceptanceCriteria": [
+        "Using the canonical prompt \"Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py\" in a normal Pi session with the extension loaded automatically triggers the transcript rendering behavior.",
+        "The resulting Pi output shows the surrounding bash wrapper and embedded python body as distinct blocks in the normal user flow, not only through /inline-format-render or custom tool invocation.",
+        "A tmux-based validation records the exact session name, prompt, and structural output evidence in progress notes.",
+        "A color-preserving visual artifact or equivalent direct visual proof method is captured and referenced in progress notes so syntax-color success can be evaluated.",
+        "npm run check passes."
+      ],
+      "priority": 7,
+      "status": "open",
+      "dependsOn": [
+        "US-004",
+        "US-005"
+      ],
+      "notes": "This story corrects the gap between helper-command success and real Pi user-flow success for the repo's core feature."
     }
   ]
 }
