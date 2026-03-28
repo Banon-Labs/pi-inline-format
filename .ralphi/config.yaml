@@ -19,6 +19,24 @@ rules:
   - "keep lint policy centralized in config files rather than file-level overrides"
   - "treat unused code as an error in both TypeScript and Rust"
 
+loop:
+  guidance: |
+    This repo's core feature is successful only when rendering works in the normal Pi user flow, not only through helper commands or parser output.
+    For rendering-related stories, passing npm run check is necessary but not sufficient.
+    Required proof before marking a story done:
+    1. validate the normal Pi user flow in tmux with the extension loaded,
+    2. use the canonical prompt: "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py",
+    3. capture structural evidence that outer bash and embedded python are separated,
+    4. capture a color-preserving visual artifact or equivalent direct visual proof of syntax-color behavior,
+    5. record the tmux session name, exact prompt, and artifact path or proof method in progress notes.
+    Do not treat helper commands such as /inline-format-render by themselves as sufficient proof of repo success.
+  reviewPasses: 2
+  trajectoryGuard: "require_corrective_plan"
+  reflectEvery: 1
+  reflectInstructions: |
+    Reassess whether the current implementation proves real Pi rendering success, not just parser, CLI, or helper-command success.
+    If visual or color-preserving proof is still missing, treat the iteration as incomplete and plan the smallest next step that obtains that proof.
+
 boundaries:
   never_touch:
     - "*.lock"
