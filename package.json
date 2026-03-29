@@ -16,7 +16,8 @@
     ]
   },
   "scripts": {
-    "check": "npm run lint && npm run format && npm run typecheck && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
+    "check": "npm run lint && npm run format && npm run typecheck && npm run check:pinned-host-runtime && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
+    "check:pinned-host-runtime": "node ./scripts/check-pinned-host-runtime.mjs",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "lint": "eslint . --max-warnings=0",
