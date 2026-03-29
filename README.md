@@ -1,4 +1,5 @@
 # pi-inline-format
+
 [![check](https://github.com/Banon-Labs/pi-inline-format/actions/workflows/check.yml/badge.svg)](https://github.com/Banon-Labs/pi-inline-format/actions/workflows/check.yml)
 
 Strict Pi extension project scaffold with:
@@ -146,14 +147,32 @@ That helper:
 
 ## Deterministic compare helpers
 
-Deterministic compare for live tmux A/B checks is now owned by the package-backed host runtime loaded from `.pi/settings.json`, not by repo-local provider files.
+Deterministic compare for live tmux A/B checks is owned by the package-backed host runtime loaded from `.pi/settings.json`, not by repo-local provider files.
 
-- Provider: `inline-deterministic/canonical-heredoc-compare`
-- Prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+Current deterministic provider surface:
+
+- Provider: `inline-deterministic`
+- Scenario models:
+  - `canonical-heredoc-compare` — Python
+  - `javascript-heredoc-compare` — JavaScript
+  - `typescript-heredoc-compare` — TypeScript
+  - `bash-heredoc-compare` — shell/bash
+- Default prompt/model pair:
+  - prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+  - model: `inline-deterministic/canonical-heredoc-compare`
 - Commands:
-  - `/inline-format-use-deterministic-model` — switches the current session to the package-backed deterministic compare model.
-  - `/inline-format-run-deterministic-compare` — switches to the deterministic model and submits the canonical heredoc prompt.
-  - `/inline-format-deterministic-status` — shows the provider, model, prompt, and helper commands.
+  - `/inline-format-use-deterministic-model [scenario]` — switches the current session to the package-backed deterministic compare model for `python`, `javascript`, `typescript`, or `bash`.
+  - `/inline-format-run-deterministic-compare [scenario]` — switches to the requested deterministic scenario and submits its matching prompt with no real LLM call.
+  - `/inline-format-deterministic-status` — shows the provider, available scenarios/models, default prompt, and helper commands.
+
+Verification surfaces in this repo:
+
+- `npm run check:pinned-host-runtime`
+  - verifies the currently pinned public git source still serves the canonical Python proof path.
+- `npm run verify:multilanguage-local-package-proof`
+  - temporarily switches `.pi/settings.json` to the local root package source `../../pi-inline-format-extensions`,
+  - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
+  - restores the pinned git source automatically afterward.
 
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 
@@ -175,7 +194,13 @@ For normal package-backed development, project-scoped `.pi/settings.json` now lo
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
 
-The intended stable release-time source is now the pinned git ref above, which resolves through the root-level Pi package surface added to `Banon-Labs/pi-inline-format-extensions`.
+The intended stable release-time source is the pinned git ref above, resolved through the root-level Pi package surface in `Banon-Labs/pi-inline-format-extensions`.
+
+For unpublished host changes under active development, the preferred local package source is now the repo root:
+
+- `../../pi-inline-format-extensions`
+
+That root-level local path matches the same package surface used by future pinned git installs. The older `../../pi-inline-format-extensions/packages/host` path remains relevant only as a historical migration source validated by `npm run verify:host-source-upgrade-path`.
 
 ## Consumer install/update/migration flow
 
@@ -203,10 +228,23 @@ Recommended consumer `.pi/settings.json` shape:
 
 ### Updating the pinned git source
 
-1. Replace the `packages[0].source` value in `.pi/settings.json` with the new pinned git ref.
-2. Keep `extensions[0]` set to `../extensions/index.ts`.
-3. Run `pi list` and confirm the new pinned source appears under `Project packages`.
-4. Run `npm run check`.
+1. Land and publish the host-side changes in `pi-inline-format-extensions` first.
+2. Replace the `packages[0].source` value in `.pi/settings.json` with the new pinned git ref.
+3. Keep `extensions[0]` set to `../extensions/index.ts`.
+4. Run `pi list` and confirm the new pinned source appears under `Project packages`.
+5. Run `npm run check`.
+6. If the host change expanded language support or deterministic proof behavior, rerun the relevant proof flow before calling the repin complete.
+
+### Pre-release local-root validation flow
+
+Before publishing a new host ref, validate against the local root package surface:
+
+1. point `packages[0].source` at `../../pi-inline-format-extensions`,
+2. keep `../extensions/index.ts` unchanged,
+3. run `npm run verify:multilanguage-local-package-proof`,
+4. restore the pinned git source after validation.
+
+This flow is specifically for unpublished host work. Stable consumer installs should continue to use pinned git refs, not an unpinned sibling checkout.
 
 ### Migrating from the old local sibling path
 
