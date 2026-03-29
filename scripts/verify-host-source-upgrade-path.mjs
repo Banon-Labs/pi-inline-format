@@ -3,6 +3,8 @@ import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
+import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
+
 const LOCAL_SOURCE = "../../pi-inline-format-extensions/packages/host";
 const PINNED_SOURCE =
   "git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140";
@@ -74,6 +76,8 @@ function verifySource(source) {
       listResult.stdout.trim(),
     ].join("\n"),
   );
+
+  ensurePackageSourceMaterialized(repoRoot, source);
 
   const compareResult = runPi(PI_COMPARE_ARGS);
   assertDeterministicCompare(compareResult.stdout, source);

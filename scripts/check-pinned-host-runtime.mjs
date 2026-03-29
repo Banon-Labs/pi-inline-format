@@ -3,6 +3,8 @@ import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
+import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
+
 const EXPECTED_SOURCE =
   "git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140";
 const CANONICAL_PROMPT =
@@ -30,6 +32,8 @@ assert(
   packageSources.includes(EXPECTED_SOURCE),
   `Expected ${settingsPath} to include pinned host source ${EXPECTED_SOURCE}.`,
 );
+
+ensurePackageSourceMaterialized(repoRoot, EXPECTED_SOURCE);
 
 const listResult = runPi(["list"]);
 assert(
