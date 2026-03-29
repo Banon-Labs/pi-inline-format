@@ -74,6 +74,7 @@ pi-inline-format/
 - Keep wrapper logic minimal and push real behavior into Rust when possible.
 
 <!-- BEGIN BEADS INTEGRATION -->
+
 ## Issue Tracking with bd (beads)
 
 **IMPORTANT**: This project uses **bd (beads)** for ALL issue tracking. Do NOT use markdown TODOs, task lists, or other tracking methods.
@@ -160,28 +161,26 @@ For more details, see README.md and docs/QUICKSTART.md.
 
 ## Landing the Plane (Session Completion)
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+**When ending a work session**, complete the steps below. The repository-root `/home/choza/projects/AGENTS.md` remains binding, including the workspace rule that `git push` is forbidden unless the user explicitly overrides it.
 
 **MANDATORY WORKFLOW:**
 
 1. **File issues for remaining work** - Create issues for anything that needs follow-up
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
+4. **Sync Beads only when needed** - Use the workspace-approved Beads/Dolt flow instead of `git push`:
    ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
+   bd dolt commit -m "checkpoint" && bd dolt pull && bd dolt push
    ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
+5. **Clean up** - Clear stashes, prune remote branches, and remove transient smoke artifacts/windows
+6. **Verify** - All intended local commits exist and Beads state is synced when applicable
+7. **Hand off** - Provide context for next session in the relevant `bd` issue comments
 
 **CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
+
+- `git push` is forbidden from this workspace unless the user explicitly overrides that policy
+- Do not claim a remote push happened when it did not
+- Do not say "ready to push when you are" about git remotes in this workspace
+- If Beads/Dolt sync is blocked, capture the blocker evidence in `bd` and stop retry loops
 
 <!-- END BEADS INTEGRATION -->

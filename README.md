@@ -134,7 +134,6 @@ Deterministic compare for live tmux A/B checks is now owned by the package-backe
   - `/inline-format-deterministic-status` — shows the provider, model, prompt, and helper commands.
 
 Pi-facing entrypoints exposed from `extensions/index.ts`:
-Pi-facing entrypoints exposed from `extensions/index.ts`:
 
 - `/inline-format-status` — reports that the project-local diagnostics wrapper is wired to the Rust CLI.
 - `/inline-format-analyze` — analyzes either the provided transcript argument or a built-in heredoc sample.
@@ -145,7 +144,7 @@ Pi-facing entrypoints exposed from `extensions/index.ts`:
 
 ## Pi package notes
 
-This repo still exposes `extensions/index.ts` through `package.json` for direct local entrypoint work during the transition.
+This repo still exposes `extensions/index.ts` through `package.json` because the repo-local Rust diagnostics remain a valid direct local entrypoint.
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
@@ -154,4 +153,4 @@ For normal package-backed development, project-scoped `.pi/settings.json` now lo
 
 This split keeps reusable runtime behavior in the sibling host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
 
-Once package-backed parity is proven in this repo, a separate landing task will choose the stable release-time source (`git` vs `npm`) for `pi-inline-format-extensions`.
+The intended stable release-time source is now a **pinned git ref** from `Banon-Labs/pi-inline-format-extensions`, once that repo gains a root-level Pi package surface suitable for git installs.
