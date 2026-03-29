@@ -122,6 +122,19 @@ That helper:
 - validates the JSON response shape before returning it to the Pi-facing layer,
 - includes the invoked command in thrown errors so integration failures are easier to debug.
 
+## Deterministic compare helpers
+
+The project also exposes a local deterministic compare provider and helper slash commands for live tmux A/B checks without a real model or network request.
+
+- Provider: `inline-deterministic/canonical-heredoc-compare`
+- Prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+- Commands:
+  - `/inline-format-use-deterministic-model` — switches the current session to the local deterministic compare model.
+  - `/inline-format-run-deterministic-compare` — switches to the deterministic model and submits the canonical heredoc prompt.
+  - `/inline-format-deterministic-status` — shows the provider, model, prompt, and helper commands.
+- Provider-only entrypoint: `extensions/deterministic-provider.ts` — useful for baseline panes that should share the same deterministic model behavior without loading the main inline-format override.
+
+Pi-facing entrypoints exposed from `extensions/index.ts`:
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 
 - `/inline-format-status` — reports that the thin wrapper is wired to the Rust CLI.

@@ -1,34 +1,38 @@
 {
   "project": "pi-inline-format",
-  "branchName": "ralph/normal-flow-color-proof",
-  "description": "Prove automatic normal-flow, color-aware inline heredoc rendering in Pi with tmux validation, ANSI-preserving artifacts, and explicit pass/fail criteria.",
+  "branchName": "ralph/inline-heredoc-python",
+  "description": "Add narrowly scoped inline Python syntax highlighting for the canonical bash heredoc transcript while preserving normal Pi transcript appearance everywhere else.",
   "userStories": [
     {
       "id": "US-001",
-      "title": "Trigger inline heredoc rendering from the normal Pi user flow",
-      "description": "As a user, I want the canonical prompt to trigger inline heredoc rendering in the normal Pi conversation flow so that I do not need helper-only commands to see the feature.",
+      "title": "Detect the canonical bash heredoc transcript shape",
+      "description": "As a developer, I want the renderer to recognize the canonical transcript shape precisely so that special handling is only applied where intended.",
       "acceptanceCriteria": [
-        "In a real Pi session with the extension loaded, the canonical prompt `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py` triggers the repo's inline rendering path.",
-        "Validation uses the normal Pi user flow rather than `/inline-format-render`, custom tools, or raw Rust CLI output alone.",
-        "The exact prompt and tmux session name used for validation are recorded.",
+        "The implementation defines the exact transcript conditions that qualify for the canonical inline-highlighting path.",
+        "Detection is scoped to a bash transcript containing a heredoc that starts with `<<'PY'` and closes with a standalone `PY` delimiter.",
+        "Detection does not trigger for unrelated bash output or non-canonical prompts in the first delivery.",
+        "Failure to match the expected shape is treated as an explicit non-match or error path rather than silent best-effort behavior.",
         "npm run check passes."
       ],
       "priority": 1,
       "status": "done",
       "dependsOn": [],
-      "notes": "Start by proving the real Pi user flow rather than helper-only paths.",
-      "startedAt": "2026-03-29T00:35:15.780Z",
-      "updatedAt": "2026-03-29T00:35:44.516Z",
-      "completedAt": "2026-03-29T00:35:44.516Z"
+      "notes": "Keep the shape matcher tightly bounded to the canonical prompt and transcript form.",
+      "startedAt": "2026-03-29T02:22:51.530Z",
+      "updatedAt": "2026-03-29T02:52:08.070Z",
+      "completedAt": "2026-03-29T02:52:08.070Z"
     },
     {
       "id": "US-002",
-      "title": "Preserve distinct wrapper-versus-embedded rendering in the normal flow",
-      "description": "As a user, I want the surrounding bash wrapper and embedded Python body to stay visually separate in the normal flow so that the output is easier to read and inspect.",
+      "title": "Preserve all visible transcript text and layout outside the Python body",
+      "description": "As a user, I want the transcript to look exactly like normal Pi bash output so that the feature improves readability without changing expected appearance.",
       "acceptanceCriteria": [
-        "The normal-flow rendered output shows the surrounding bash wrapper and embedded Python body as distinct blocks or equivalent distinct structured output.",
-        "The embedded Python body is not collapsed back into plain shell text.",
-        "Structural proof from the validation session is recorded in a durable artifact or notes.",
+        "The final rendered output preserves all original transcript text before, within, and after the heredoc region.",
+        "Bounding boxes, padding, margins, spacing, and line ordering remain unchanged from normal Pi output.",
+        "Surrounding bash lines keep normal bash styling.",
+        "The heredoc delimiter lines `<<'PY'` and `PY` keep their normal bash styling.",
+        "No labels, duplicated blocks, explanatory text, visible wrapper/body splits, or alternate presentation are introduced.",
+        "Verify in browser or equivalent interactive Pi rendering surface used for normal output.",
         "npm run check passes."
       ],
       "priority": 2,
@@ -36,31 +40,81 @@
       "dependsOn": [
         "US-001"
       ],
-      "notes": "Keep the wrapper-versus-embedded distinction visible once the normal flow triggers the feature.",
-      "startedAt": "2026-03-29T00:35:44.518Z",
-      "updatedAt": "2026-03-29T00:36:38.857Z",
-      "completedAt": "2026-03-29T00:36:38.857Z"
+      "notes": "Treat canonical bash transcript parity as the primary UX constraint.",
+      "startedAt": "2026-03-29T02:23:52.198Z",
+      "updatedAt": "2026-03-29T02:52:59.566Z",
+      "completedAt": "2026-03-29T02:52:59.566Z"
     },
     {
       "id": "US-003",
-      "title": "Produce color-aware proof artifacts for rendering validation",
-      "description": "As a developer, I want a repeatable color-aware proof artifact so that I can judge whether syntax-color rendering actually succeeded.",
+      "title": "Apply Python syntax highlighting only to heredoc body lines",
+      "description": "As a user, I want only the embedded Python body to be syntax-colored so that the code is easier to read without changing the surrounding shell transcript.",
       "acceptanceCriteria": [
-        "The normal-flow validation captures a color-preserving artifact, such as ANSI-preserving tmux capture, terminal recording, screenshot, or equivalent proof that preserves styling information.",
-        "The artifact is judged against an explicit pass/fail rubric.",
-        "The rubric requires PASS only when the normal user flow triggered the rendering path, wrapper bash and embedded Python are visibly separated, the embedded block is rendered as Python rather than plain shell text, the artifact preserves ANSI or equivalent color information, at least two visually distinct syntax token styles appear inside the embedded Python block, and the embedded Python styling is visibly distinct from the surrounding bash wrapper.",
-        "The artifact path or proof method is recorded in progress notes.",
+        "Only lines strictly between the opening `<<'PY'` line and closing `PY` line receive Python syntax highlighting.",
+        "Python token coloring matches normal Python highlighting behavior used elsewhere by Pi for Python code.",
+        "Body text content is unchanged; only syntax coloring differs.",
+        "The opening and closing delimiter lines are not recolored as Python.",
+        "No surrounding bash lines are recolored as Python.",
         "npm run check passes."
       ],
       "priority": 3,
       "status": "done",
       "dependsOn": [
+        "US-001",
         "US-002"
       ],
-      "notes": "Leave a durable proof trail for visual success, not just textual success.",
-      "startedAt": "2026-03-29T00:36:38.860Z",
-      "updatedAt": "2026-03-29T00:37:29.023Z",
-      "completedAt": "2026-03-29T00:37:29.023Z"
+      "notes": "Reuse existing Pi/Pygments-style Python highlighting behavior instead of inventing a new color scheme.",
+      "startedAt": "2026-03-29T02:24:31.314Z",
+      "updatedAt": "2026-03-29T02:53:34.349Z",
+      "completedAt": "2026-03-29T02:53:34.349Z"
+    },
+    {
+      "id": "US-004",
+      "title": "Fail loudly when inline highlighting cannot be applied confidently",
+      "description": "As a developer, I want explicit failure behavior when the renderer cannot safely preserve exact output so that incorrect partial rendering is not shown silently.",
+      "acceptanceCriteria": [
+        "The implementation defines what `fail loudly` means in this repo and rendering path.",
+        "If the transcript cannot be matched or preserved exactly enough, the system surfaces an explicit error, diagnostic, or blocked-path outcome rather than silently applying partial highlighting.",
+        "The failure path is covered by at least one automated test or equivalent reproducible validation artifact.",
+        "The failure mode does not quietly alter transcript layout or styling outside the allowed Python body scope.",
+        "npm run check passes."
+      ],
+      "priority": 4,
+      "status": "done",
+      "dependsOn": [
+        "US-001",
+        "US-002",
+        "US-003"
+      ],
+      "notes": "Resolve and encode the open question around the exact user-visible loud-failure mechanism.",
+      "startedAt": "2026-03-29T02:25:42.722Z",
+      "updatedAt": "2026-03-29T02:54:43.463Z",
+      "completedAt": "2026-03-29T02:54:43.463Z"
+    },
+    {
+      "id": "US-005",
+      "title": "Validate canonical visual parity and nearby regressions exhaustively within current limits",
+      "description": "As a maintainer, I want strong proof that the canonical rendering is preserved so that the feature can be trusted despite its tight visual constraints.",
+      "acceptanceCriteria": [
+        "Validation includes a before-versus-after comparison for the canonical prompt on the main Pi user chat/output surface.",
+        "Validation proves identical text and layout outside the Python body region.",
+        "Validation covers at least one negative case where a non-Python or non-canonical heredoc does not receive the special treatment.",
+        "Validation covers at least one malformed or incomplete heredoc case that exercises the loud-failure behavior.",
+        "Validation notes any environment limits that prevent broader proof and states what remains unverified.",
+        "Verify in browser or equivalent interactive Pi rendering surface used for normal output.",
+        "npm run check passes."
+      ],
+      "priority": 5,
+      "status": "done",
+      "dependsOn": [
+        "US-002",
+        "US-003",
+        "US-004"
+      ],
+      "notes": "Capture both canonical success proof and bounded regression/failure evidence.",
+      "startedAt": "2026-03-29T02:26:26.446Z",
+      "updatedAt": "2026-03-29T02:55:28.164Z",
+      "completedAt": "2026-03-29T02:55:28.164Z"
     }
   ]
 }
