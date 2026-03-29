@@ -9,7 +9,6 @@ const PINNED_SOURCE =
 const CANONICAL_PROMPT =
   "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py";
 const PI_COMPARE_ARGS = [
-  "--offline",
   "--no-session",
   "--no-skills",
   "--no-prompt-templates",

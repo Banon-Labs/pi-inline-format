@@ -42,7 +42,6 @@ assert(
 );
 
 const compareResult = runPi([
-  "--offline",
   "--no-session",
   "--no-skills",
   "--no-prompt-templates",
