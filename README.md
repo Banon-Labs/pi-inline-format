@@ -168,7 +168,7 @@ Current deterministic provider surface:
 Verification surfaces in this repo:
 
 - `npm run check:pinned-host-runtime`
-  - verifies the currently pinned public git source still serves the canonical Python proof path.
+  - verifies the currently pinned public git source still serves the shipped deterministic Python, JavaScript, TypeScript, and bash proof paths.
 - `npm run verify:multilanguage-local-package-proof`
   - temporarily switches `.pi/settings.json` to the local root package source `../../pi-inline-format-extensions`,
   - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
@@ -189,7 +189,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -210,7 +210,7 @@ Recommended consumer `.pi/settings.json` shape:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f",
       "skills": [],
       "prompts": [],
       "themes": []
