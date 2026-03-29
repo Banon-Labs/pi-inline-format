@@ -39,5 +39,11 @@ jobs:
       - name: Rehearse host-source upgrade path
         run: npm run verify:host-source-upgrade-path
 
-      - name: Run combined checks
-        run: npm run check
+      - name: Run pinned host regression
+        run: npm run check:pinned-host-runtime
+
+      - name: Run ANSI capture proof harness
+        run: npm run check:ansi-capture-proof
+
+      - name: Run core quality gates
+        run: npm run check:core

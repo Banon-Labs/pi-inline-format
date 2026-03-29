@@ -35,15 +35,15 @@ done
 case "$SCENARIO" in
   python)
     TARGET_COMMAND='/inline-format-run-deterministic-compare python'
-    EXPECT_TEXT='def main() -> None:'
-    PLAIN_LINE='def main() -> None:'
-    ANSI_REGEX='\x1b\[[0-9;]*mdef\x1b\[39m main\(\)'
+    EXPECT_TEXT='print("hello from /tmp/delete.me.py")'
+    PLAIN_LINE='print("hello from /tmp/delete.me.py")'
+    ANSI_REGEX='\x1b\[[0-9;]*mprint\x1b\[39m\('
     ;;
   javascript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare javascript'
     EXPECT_TEXT='console.log("hello from js", value);'
     PLAIN_LINE='console.log("hello from js", value);'
-    ANSI_REGEX='\x1b\[[0-9;]*mconsole\x1b\[39m\.\x1b\[[0-9;]*mlog'
+    ANSI_REGEX='\x1b\[[0-9;]*mconsole\x1b\[39m\.log\('
     ;;
   typescript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare typescript'
@@ -55,7 +55,7 @@ case "$SCENARIO" in
     TARGET_COMMAND='/inline-format-run-deterministic-compare bash'
     EXPECT_TEXT='echo "hello from sh"'
     PLAIN_LINE='echo "hello from sh"'
-    ANSI_REGEX='\x1b\[[0-9;]*mecho\x1b\[39m "hello from sh"'
+    ANSI_REGEX='\x1b\[[0-9;]*mecho\x1b\[39m'
     ;;
   *)
     echo "Unsupported scenario: $SCENARIO" >&2

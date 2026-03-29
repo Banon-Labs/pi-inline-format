@@ -53,7 +53,7 @@ npm run check
 
 The GitHub Actions `check` workflow is the repository-level guardrail for the package-backed setup.
 
-It currently runs two layers:
+It currently runs four layers:
 
 1. `npm run verify:host-source-upgrade-path`
    - explicitly rehearses the reversible local-path to pinned-git migration flow,
@@ -61,14 +61,21 @@ It currently runs two layers:
    - proves deterministic compare still works after the source switch,
    - restores `.pi/settings.json` automatically,
    - in CI, runs after the workflow materializes the legacy `../pi-inline-format-extensions` sibling checkout expected by the rehearsal.
-2. `npm run check`
-   - covers linting, formatting, TypeScript checks, the pinned-host regression script, and all Rust checks/tests.
+2. `npm run check:pinned-host-runtime`
+   - covers the headless deterministic regression path for the pinned host source.
+3. `npm run check:ansi-capture-proof`
+   - runs the tmux-based ANSI capture proof harness,
+   - consumes the new `replay.ansi` and `observer.write.log` artifacts,
+   - verifies that color-sensitive proof survives the `tmux-capture ansi:true` path for python, javascript, typescript, and bash.
+4. `npm run check:core`
+   - covers linting, formatting, TypeScript checks, and all Rust checks/tests.
 
 Use this split to interpret failures:
 
 - upgrade-path rehearsal failures usually indicate package-source or migration regressions,
-- `check:pinned-host-runtime` failures usually indicate package-backed host/runtime regressions,
-- Rust or local diagnostics failures usually indicate repo-local diagnostics issues rather than package-source wiring.
+- `check:pinned-host-runtime` failures usually indicate package-backed host/runtime regressions before TUI/tmux proof is involved,
+- `check:ansi-capture-proof` failures usually indicate the ANSI-preserving proof bridge or color-sensitive transcript evidence regressed,
+- `check:core` failures usually indicate repo-local diagnostics or Rust/tooling issues rather than package-source wiring.
 
 ## Rust transcript analysis contract
 
@@ -248,7 +255,7 @@ Default behavior:
 - launches a deterministic target Pi pane in this repo,
 - runs `/inline-format-run-deterministic-compare typescript`,
 - launches an observer Pi pane,
-- has the observer call `tmux-capture` with `ansi: true` against the target pane,
+- extracts ANSI-rich proof lines into a replay pane, then has the observer call `tmux-capture` with `ansi: true` against that replay pane,
 - validates that the observer write log still contains ANSI-highlighted TypeScript output,
 - writes artifacts under `/tmp/pi-inline-smoke-ansi-capture-*/`.
 
@@ -257,7 +264,7 @@ Useful flags:
 - `--scenario python|javascript|typescript|bash`
 - `--keep-open` to leave the dedicated smoke session running for inspection
 
-This helper is for proofing the capture bridge itself. It complements, rather than replaces, the existing deterministic grid smoke and raw `PI_TUI_WRITE_LOG` artifacts.
+This helper is for proofing the capture bridge itself. It complements, rather than replaces, the existing deterministic grid smoke and raw `PI_TUI_WRITE_LOG` artifacts. The automated harness entrypoint is `npm run check:ansi-capture-proof`.
 
 ### Pre-release local-root validation flow
 
