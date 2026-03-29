@@ -124,34 +124,34 @@ That helper:
 
 ## Deterministic compare helpers
 
-The project also exposes a local deterministic compare provider and helper slash commands for live tmux A/B checks without a real model or network request.
+Deterministic compare for live tmux A/B checks is now owned by the package-backed host runtime loaded from `.pi/settings.json`, not by repo-local provider files.
 
 - Provider: `inline-deterministic/canonical-heredoc-compare`
 - Prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
 - Commands:
-  - `/inline-format-use-deterministic-model` — switches the current session to the local deterministic compare model.
+  - `/inline-format-use-deterministic-model` — switches the current session to the package-backed deterministic compare model.
   - `/inline-format-run-deterministic-compare` — switches to the deterministic model and submits the canonical heredoc prompt.
   - `/inline-format-deterministic-status` — shows the provider, model, prompt, and helper commands.
-- Provider-only entrypoint: `extensions/deterministic-provider.ts` — useful for baseline panes that should share the same deterministic model behavior without loading the main inline-format override.
 
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 
-- `/inline-format-status` — reports that the thin wrapper is wired to the Rust CLI.
+- `/inline-format-status` — reports that the project-local diagnostics wrapper is wired to the Rust CLI.
 - `/inline-format-analyze` — analyzes either the provided transcript argument or a built-in heredoc sample.
 - `/inline-format-render` — renders the transcript as distinct language-aware markdown code fences derived from Rust `render_blocks`.
 - `analyze_inline_transcript` — Pi tool that returns the full Rust JSON contract for a raw transcript.
 - `render_inline_transcript` — Pi tool that returns markdown-ready output plus structured `render_blocks` for downstream rendering.
-- an overridden built-in `bash` renderer — automatically projects Rust-derived heredoc structure into separate bash-wrapper and embedded-code sections during the normal Pi user flow.
+- package-backed host runtime seams — loaded from `.pi/settings.json`, currently owning the built-in `bash` override, deterministic compare helpers, and summary suppression behavior for the normal Pi user flow.
 
 ## Pi package notes
 
 This repo still exposes `extensions/index.ts` through `package.json` for direct local entrypoint work during the transition.
 
-For package-backed development, the canonical Pi loading path is now project-scoped `.pi/settings.json`, which points at the sibling host package source:
+For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- source: `../../pi-inline-format-extensions/packages/host` (relative to `.pi/settings.json`)
-- scope: project-local only
-- reason: local-path package loading exercises the real Pi package install/reload path without introducing git or npm publication noise during active integration
+- host package source: `../../pi-inline-format-extensions/packages/host`
+- local diagnostics extension: `../extensions/index.ts`
+
+This split keeps reusable runtime behavior in the sibling host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
 
 Once package-backed parity is proven in this repo, a separate landing task will choose the stable release-time source (`git` vs `npm`) for `pi-inline-format-extensions`.

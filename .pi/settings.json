@@ -6,5 +6,8 @@
       "prompts": [],
       "themes": []
     }
+  ],
+  "extensions": [
+    "../extensions/index.ts"
   ]
 }

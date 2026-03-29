@@ -1,26 +1,11 @@
-import {
-  createBashToolDefinition,
-  highlightCode,
-  initTheme,
-  type ExtensionAPI,
-  type Theme,
-} from "@mariozechner/pi-coding-agent";
-import { Text } from "@mariozechner/pi-tui";
+import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
-import { registerDeterministicProvider } from "./deterministic-provider-core.js";
 import {
   type AnalyzeResponse,
   type RenderBlock,
   analyzeTranscriptWithRustCli,
 } from "./rust-cli.js";
-
-const BASH_PARAMS = Type.Object({
-  command: Type.String({ description: "Bash command to execute" }),
-  timeout: Type.Optional(
-    Type.Number({ description: "Timeout in seconds (optional, no default timeout)" }),
-  ),
-});
 
 const STATUS_COMMAND = "inline-format-status";
 const ANALYZE_COMMAND = "inline-format-analyze";
@@ -29,174 +14,21 @@ const ANALYZE_TOOL = "analyze_inline_transcript";
 const RENDER_TOOL = "render_inline_transcript";
 const SAMPLE_TRANSCRIPT = "$ python - <<'PY'\nprint('hi')\nPY\n$ echo done\n";
 const STATUS_MESSAGE =
-  "pi-inline-format: TypeScript now wraps the Rust CLI for transcript analysis and render blocks.";
+  "pi-inline-format: project-local extension now exposes Rust CLI transcript diagnostics while runtime seams load from the package-backed host via .pi/settings.json.";
 const STATUS_DESCRIPTION =
-  "Show the current pi-inline-format wrapper status and Rust CLI integration state.";
+  "Show the current project-local Rust CLI diagnostics status for pi-inline-format.";
 const ANALYZE_DESCRIPTION =
   "Analyze a transcript via the Rust CLI. Omits arguments to analyze the built-in heredoc sample.";
 const RENDER_DESCRIPTION =
   "Render a transcript into distinct language-aware markdown code blocks via the Rust CLI. Omits arguments to render the built-in heredoc sample.";
-const BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS = `When the user asks for a bash action and the bash transcript itself will clearly show what happened, do not add prefatory narration, planning text, completion summaries, restatements, or reformatted file contents unless the user explicitly asks for them.
-
-After a successful bash tool result, prefer ending the turn immediately with no extra assistant narration.
-
-In particular, do not add follow-up narration such as:
-- \`Done\`
-- \`Done: <path>\`
-- \`Created <path>\`
-- \`Wrote <path>\`
-- \`Executed <path>\`
-- \`Contents:\`
-- restated file paths
-- fenced code blocks repeating file contents
-- paraphrases like \`Created /tmp/delete.me.py with a bash heredoc.\`
-
-For the canonical heredoc flow in this repo, the preferred behavior is:
-- call bash directly
-- let the bash tool row/output speak for itself
-- do not add any assistant text before or after a successful bash tool result`;
-
-const PYTHON_HEREDOC_MARKERS = ["<<'PY'", '<<"PY"', "<<PY"];
-
-const PYTHON_HEREDOC_TERMINATOR = "PY";
-
 const ANALYZE_PARAMS = Type.Object({
   transcript: Type.String({
     description: "Raw transcript text to send to the Rust CLI over stdin.",
   }),
 });
 
-function formatDefaultBashCall(
-  command: string,
-  timeout: number | undefined,
-  theme: Pick<Theme, "fg" | "bold">,
-): string {
-  const timeoutSuffix = timeout
-    ? theme.fg("muted", ` (timeout ${String(timeout)}s)`)
-    : "";
-
-  return `${theme.fg("toolTitle", theme.bold(`$ ${command}`))}${timeoutSuffix}`;
-}
-
-function highlightCodeWithRenderTheme(code: string, lang: string): string[] {
-  initTheme();
-  return highlightCode(code, lang);
-}
-
-function findPythonHeredocRange(lines: string[]): {
-  startLineIndex: number;
-  endLineIndex: number;
-} | null {
-  const startLineIndex = lines.findIndex((line) =>
-    PYTHON_HEREDOC_MARKERS.some((marker) => line.includes(marker)),
-  );
-
-  if (startLineIndex === -1) {
-    return null;
-  }
-
-  const endLineIndex = lines.findIndex(
-    (line, index) => index > startLineIndex && line === PYTHON_HEREDOC_TERMINATOR,
-  );
-
-  if (endLineIndex <= startLineIndex + 1) {
-    return null;
-  }
-
-  return { startLineIndex, endLineIndex };
-}
-
-function renderInlineHighlightedBashCall(
-  command: string,
-  timeout: number | undefined,
-  theme: Pick<Theme, "fg" | "bold">,
-): string | null {
-  const lines = command.split("\n");
-  const heredocRange = findPythonHeredocRange(lines);
-
-  if (heredocRange === null) {
-    return null;
-  }
-
-  const pythonSource = lines
-    .slice(heredocRange.startLineIndex + 1, heredocRange.endLineIndex)
-    .join("\n");
-
-  if (pythonSource.length === 0) {
-    return null;
-  }
-
-  const highlightedLines = highlightCodeWithRenderTheme(pythonSource, "python");
-  const renderedLines = lines.map((line, index) => {
-    const prefixedLine = `${index === 0 ? "$ " : ""}${line}`;
-
-    if (index > heredocRange.startLineIndex && index < heredocRange.endLineIndex) {
-      return `${index === 0 ? "$ " : ""}${highlightedLines[index - heredocRange.startLineIndex - 1] ?? line}`;
-    }
-
-    return theme.fg("toolTitle", theme.bold(prefixedLine));
-  });
-
-  const timeoutSuffix = timeout
-    ? theme.fg("muted", ` (timeout ${String(timeout)}s)`)
-    : "";
-
-  return `${renderedLines.join("\n")}${timeoutSuffix}`;
-}
-
-/** Register the project-local Pi extension wrapper. */
+/** Register the project-local Rust diagnostics extension. */
 export default function registerInlineFormatExtension(pi: ExtensionAPI): void {
-  registerDeterministicProvider(pi);
-
-  pi.on("before_agent_start", async (event) => {
-    await Promise.resolve();
-    if (event.systemPrompt.includes(BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS)) {
-      return undefined;
-    }
-
-    return {
-      systemPrompt: `${event.systemPrompt}\n\n${BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS}`,
-    };
-  });
-
-  const originalBash = createBashToolDefinition(process.cwd());
-
-  pi.registerTool({
-    name: "bash",
-    label: originalBash.label,
-    description: originalBash.description,
-    promptSnippet:
-      originalBash.promptSnippet ?? "Execute bash commands (ls, grep, find, etc.)",
-    parameters: BASH_PARAMS,
-    async execute(toolCallId, params, signal, onUpdate, ctx) {
-      return await originalBash.execute(toolCallId, params, signal, onUpdate, ctx);
-    },
-    renderCall(args, theme, context) {
-      const state = context.state as {
-        startedAt?: number | undefined;
-        endedAt?: number | undefined;
-      };
-      if (context.executionStarted && state.startedAt === undefined) {
-        state.startedAt = Date.now();
-        state.endedAt = undefined;
-      }
-
-      const highlightedCall = renderInlineHighlightedBashCall(
-        args.command,
-        args.timeout,
-        theme,
-      );
-
-      if (args.command.includes("/tmp/delete.me.py") && highlightedCall !== null) {
-        return new Text(highlightedCall, 0, 0);
-      }
-
-      const renderedCall =
-        highlightedCall ?? formatDefaultBashCall(args.command, args.timeout, theme);
-      return new Text(renderedCall, 0, 0);
-    },
-  });
-
   pi.registerCommand(STATUS_COMMAND, {
     description: STATUS_DESCRIPTION,
     handler: async (_args, ctx) => {
