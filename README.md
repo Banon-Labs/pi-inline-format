@@ -154,3 +154,57 @@ For normal package-backed development, project-scoped `.pi/settings.json` now lo
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
 
 The intended stable release-time source is now the pinned git ref above, which resolves through the root-level Pi package surface added to `Banon-Labs/pi-inline-format-extensions`.
+
+## Consumer install/update/migration flow
+
+Recommended consumer `.pi/settings.json` shape:
+
+```json
+{
+  "packages": [
+    {
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140",
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    }
+  ],
+  "extensions": ["../extensions/index.ts"]
+}
+```
+
+### What stays local vs package-backed
+
+- Keep the host/runtime package source pinned in `.pi/settings.json`.
+- Keep `../extensions/index.ts` loaded locally for repo-local Rust CLI diagnostics.
+- Do **not** move the local diagnostics commands into the package source; the package owns runtime seams, while this repo keeps diagnostics.
+
+### Updating the pinned git source
+
+1. Replace the `packages[0].source` value in `.pi/settings.json` with the new pinned git ref.
+2. Keep `extensions[0]` set to `../extensions/index.ts`.
+3. Run `pi list` and confirm the new pinned source appears under `Project packages`.
+4. Run `npm run check`.
+
+### Migrating from the old local sibling path
+
+Older local development used:
+
+- `../../pi-inline-format-extensions/packages/host`
+
+The verified migration path is:
+
+1. start from the old local-path package source above,
+2. switch `packages[0].source` to the pinned git source,
+3. keep `../extensions/index.ts` unchanged,
+4. verify with `npm run verify:host-source-upgrade-path`,
+5. finish with `npm run check`.
+
+`npm run verify:host-source-upgrade-path` rehearses the exact transition locally by temporarily switching `.pi/settings.json` from the old local-path source to the pinned git source, running `pi list` plus headless deterministic compare verification at each step, and restoring the original settings file automatically even on failure.
+
+### Rollback note
+
+If a future update fails, restore `.pi/settings.json` to the last known-good package source and rerun:
+
+- `pi list`
+- `npm run check`
