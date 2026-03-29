@@ -47,6 +47,26 @@ npm run rust:test
 npm run check
 ```
 
+## CI contract
+
+The GitHub Actions `check` workflow is the repository-level guardrail for the package-backed setup.
+
+It currently runs two layers:
+
+1. `npm run verify:host-source-upgrade-path`
+   - explicitly rehearses the reversible local-path to pinned-git migration flow,
+   - proves the pinned host source still loads,
+   - proves deterministic compare still works after the source switch,
+   - restores `.pi/settings.json` automatically.
+2. `npm run check`
+   - covers linting, formatting, TypeScript checks, the pinned-host regression script, and all Rust checks/tests.
+
+Use this split to interpret failures:
+
+- upgrade-path rehearsal failures usually indicate package-source or migration regressions,
+- `check:pinned-host-runtime` failures usually indicate package-backed host/runtime regressions,
+- Rust or local diagnostics failures usually indicate repo-local diagnostics issues rather than package-source wiring.
+
 ## Rust transcript analysis contract
 
 The Rust CLI reads raw transcript text from stdin and prints JSON shaped like:

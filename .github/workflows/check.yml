@@ -30,5 +30,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Rehearse host-source upgrade path
+        run: npm run verify:host-source-upgrade-path
+
       - name: Run combined checks
         run: npm run check
