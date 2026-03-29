@@ -146,5 +146,12 @@ Pi-facing entrypoints exposed from `extensions/index.ts`:
 
 ## Pi package notes
 
-This project is configured as a Pi package via the `pi.extensions` entry in `package.json`.
-The package exposes `extensions/index.ts` as the Pi extension entrypoint.
+This repo still exposes `extensions/index.ts` through `package.json` for direct local entrypoint work during the transition.
+
+For package-backed development, the canonical Pi loading path is now project-scoped `.pi/settings.json`, which points at the sibling host package source:
+
+- source: `../../pi-inline-format-extensions/packages/host` (relative to `.pi/settings.json`)
+- scope: project-local only
+- reason: local-path package loading exercises the real Pi package install/reload path without introducing git or npm publication noise during active integration
+
+Once package-backed parity is proven in this repo, a separate landing task will choose the stable release-time source (`git` vs `npm`) for `pi-inline-format-extensions`.

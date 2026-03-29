@@ -1,0 +1,10 @@
+{
+  "packages": [
+    {
+      "source": "../../pi-inline-format-extensions/packages/host",
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    }
+  ]
+}
