@@ -18,3 +18,7 @@ Cargo.lock
 
 # pi-lens
 .pi-lens/
+
+# Dolt database files (added by bd init)
+.dolt/
+*.db
