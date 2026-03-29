@@ -57,7 +57,8 @@ It currently runs two layers:
    - explicitly rehearses the reversible local-path to pinned-git migration flow,
    - proves the pinned host source still loads,
    - proves deterministic compare still works after the source switch,
-   - restores `.pi/settings.json` automatically.
+   - restores `.pi/settings.json` automatically,
+   - in CI, runs after the workflow materializes the legacy `../pi-inline-format-extensions` sibling checkout expected by the rehearsal.
 2. `npm run check`
    - covers linting, formatting, TypeScript checks, the pinned-host regression script, and all Rust checks/tests.
 

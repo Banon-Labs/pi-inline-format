@@ -30,6 +30,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Materialize local sibling host source for migration rehearsal
+        run: |
+          git clone https://github.com/Banon-Labs/pi-inline-format-extensions.git ../pi-inline-format-extensions
+          git -C ../pi-inline-format-extensions checkout 8d2b88dd09fc812141415177a8fad492dd94a140
+          npm ci --prefix ../pi-inline-format-extensions
+
       - name: Rehearse host-source upgrade path
         run: npm run verify:host-source-upgrade-path
 
