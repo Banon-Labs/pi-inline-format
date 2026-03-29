@@ -148,9 +148,9 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `../../pi-inline-format-extensions/packages/host`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140`
 - local diagnostics extension: `../extensions/index.ts`
 
-This split keeps reusable runtime behavior in the sibling host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
+This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
 
-The intended stable release-time source is now a **pinned git ref** from `Banon-Labs/pi-inline-format-extensions`, once that repo gains a root-level Pi package surface suitable for git installs.
+The intended stable release-time source is now the pinned git ref above, which resolves through the root-level Pi package surface added to `Banon-Labs/pi-inline-format-extensions`.

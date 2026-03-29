@@ -1,7 +1,7 @@
 {
   "packages": [
     {
-      "source": "../../pi-inline-format-extensions/packages/host",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@8d2b88dd09fc812141415177a8fad492dd94a140",
       "skills": [],
       "prompts": [],
       "themes": []
