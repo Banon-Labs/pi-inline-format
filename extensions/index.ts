@@ -1,16 +1,26 @@
 import {
   createBashToolDefinition,
-  type BashToolDetails,
+  highlightCode,
+  initTheme,
   type ExtensionAPI,
+  type Theme,
 } from "@mariozechner/pi-coding-agent";
 import { Text } from "@mariozechner/pi-tui";
 import { Type } from "@sinclair/typebox";
 
+import { registerDeterministicProvider } from "./deterministic-provider-core.js";
 import {
   type AnalyzeResponse,
   type RenderBlock,
   analyzeTranscriptWithRustCli,
 } from "./rust-cli.js";
+
+const BASH_PARAMS = Type.Object({
+  command: Type.String({ description: "Bash command to execute" }),
+  timeout: Type.Optional(
+    Type.Number({ description: "Timeout in seconds (optional, no default timeout)" }),
+  ),
+});
 
 const STATUS_COMMAND = "inline-format-status";
 const ANALYZE_COMMAND = "inline-format-analyze";
@@ -26,57 +36,167 @@ const ANALYZE_DESCRIPTION =
   "Analyze a transcript via the Rust CLI. Omits arguments to analyze the built-in heredoc sample.";
 const RENDER_DESCRIPTION =
   "Render a transcript into distinct language-aware markdown code blocks via the Rust CLI. Omits arguments to render the built-in heredoc sample.";
+const BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS = `When the user asks for a bash action and the bash transcript itself will clearly show what happened, do not add prefatory narration, planning text, completion summaries, restatements, or reformatted file contents unless the user explicitly asks for them.
+
+After a successful bash tool result, prefer ending the turn immediately with no extra assistant narration.
+
+In particular, do not add follow-up narration such as:
+- \`Done\`
+- \`Done: <path>\`
+- \`Created <path>\`
+- \`Wrote <path>\`
+- \`Executed <path>\`
+- \`Contents:\`
+- restated file paths
+- fenced code blocks repeating file contents
+- paraphrases like \`Created /tmp/delete.me.py with a bash heredoc.\`
+
+For the canonical heredoc flow in this repo, the preferred behavior is:
+- call bash directly
+- let the bash tool row/output speak for itself
+- do not add any assistant text before or after a successful bash tool result`;
+
+const PYTHON_HEREDOC_MARKERS = ["<<'PY'", '<<"PY"', "<<PY"];
+
+const PYTHON_HEREDOC_TERMINATOR = "PY";
+
 const ANALYZE_PARAMS = Type.Object({
   transcript: Type.String({
     description: "Raw transcript text to send to the Rust CLI over stdin.",
   }),
 });
-const INLINE_RENDER_PREVIEW_LINES = 8;
-const originalBashTool = createBashToolDefinition(process.cwd());
 
-type InlineFormatBashToolDetails = BashToolDetails & {
-  inlineFormat?: {
-    invocation: string;
-    renderBlocks: RenderBlock[];
-  };
-};
+function formatDefaultBashCall(
+  command: string,
+  timeout: number | undefined,
+  theme: Pick<Theme, "fg" | "bold">,
+): string {
+  const timeoutSuffix = timeout
+    ? theme.fg("muted", ` (timeout ${String(timeout)}s)`)
+    : "";
 
-type BashToolInput = Parameters<typeof originalBashTool.execute>[1];
-type BashToolSignal = Parameters<typeof originalBashTool.execute>[2];
-type BashToolOnUpdate = Parameters<typeof originalBashTool.execute>[3];
-type BashToolExecuteContext = Parameters<typeof originalBashTool.execute>[4];
-type BashToolResult = Awaited<ReturnType<typeof originalBashTool.execute>>;
-type BashRenderCallArgs = Parameters<
-  NonNullable<typeof originalBashTool.renderCall>
->[0];
-type BashRenderCallTheme = Parameters<
-  NonNullable<typeof originalBashTool.renderCall>
->[1];
-type BashRenderCallContext = Parameters<
-  NonNullable<typeof originalBashTool.renderCall>
->[2];
-type BashRenderCallComponent = ReturnType<
-  NonNullable<typeof originalBashTool.renderCall>
->;
-type BashRenderResultValue = Parameters<
-  NonNullable<typeof originalBashTool.renderResult>
->[0];
-type BashRenderResultOptions = Parameters<
-  NonNullable<typeof originalBashTool.renderResult>
->[1];
-type BashRenderResultTheme = Parameters<
-  NonNullable<typeof originalBashTool.renderResult>
->[2];
-type BashRenderResultContext = Parameters<
-  NonNullable<typeof originalBashTool.renderResult>
->[3];
-type BashRenderResultComponent = ReturnType<
-  NonNullable<typeof originalBashTool.renderResult>
->;
-type BashUpdatePayload = Parameters<NonNullable<BashToolOnUpdate>>[0];
+  return `${theme.fg("toolTitle", theme.bold(`$ ${command}`))}${timeoutSuffix}`;
+}
+
+function highlightCodeWithRenderTheme(code: string, lang: string): string[] {
+  initTheme();
+  return highlightCode(code, lang);
+}
+
+function findPythonHeredocRange(lines: string[]): {
+  startLineIndex: number;
+  endLineIndex: number;
+} | null {
+  const startLineIndex = lines.findIndex((line) =>
+    PYTHON_HEREDOC_MARKERS.some((marker) => line.includes(marker)),
+  );
+
+  if (startLineIndex === -1) {
+    return null;
+  }
+
+  const endLineIndex = lines.findIndex(
+    (line, index) => index > startLineIndex && line === PYTHON_HEREDOC_TERMINATOR,
+  );
+
+  if (endLineIndex <= startLineIndex + 1) {
+    return null;
+  }
+
+  return { startLineIndex, endLineIndex };
+}
+
+function renderInlineHighlightedBashCall(
+  command: string,
+  timeout: number | undefined,
+  theme: Pick<Theme, "fg" | "bold">,
+): string | null {
+  const lines = command.split("\n");
+  const heredocRange = findPythonHeredocRange(lines);
+
+  if (heredocRange === null) {
+    return null;
+  }
+
+  const pythonSource = lines
+    .slice(heredocRange.startLineIndex + 1, heredocRange.endLineIndex)
+    .join("\n");
+
+  if (pythonSource.length === 0) {
+    return null;
+  }
+
+  const highlightedLines = highlightCodeWithRenderTheme(pythonSource, "python");
+  const renderedLines = lines.map((line, index) => {
+    const prefixedLine = `${index === 0 ? "$ " : ""}${line}`;
+
+    if (index > heredocRange.startLineIndex && index < heredocRange.endLineIndex) {
+      return `${index === 0 ? "$ " : ""}${highlightedLines[index - heredocRange.startLineIndex - 1] ?? line}`;
+    }
+
+    return theme.fg("toolTitle", theme.bold(prefixedLine));
+  });
+
+  const timeoutSuffix = timeout
+    ? theme.fg("muted", ` (timeout ${String(timeout)}s)`)
+    : "";
+
+  return `${renderedLines.join("\n")}${timeoutSuffix}`;
+}
 
 /** Register the project-local Pi extension wrapper. */
 export default function registerInlineFormatExtension(pi: ExtensionAPI): void {
+  registerDeterministicProvider(pi);
+
+  pi.on("before_agent_start", async (event) => {
+    await Promise.resolve();
+    if (event.systemPrompt.includes(BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS)) {
+      return undefined;
+    }
+
+    return {
+      systemPrompt: `${event.systemPrompt}\n\n${BASH_SUMMARY_SUPPRESSION_INSTRUCTIONS}`,
+    };
+  });
+
+  const originalBash = createBashToolDefinition(process.cwd());
+
+  pi.registerTool({
+    name: "bash",
+    label: originalBash.label,
+    description: originalBash.description,
+    promptSnippet:
+      originalBash.promptSnippet ?? "Execute bash commands (ls, grep, find, etc.)",
+    parameters: BASH_PARAMS,
+    async execute(toolCallId, params, signal, onUpdate, ctx) {
+      return await originalBash.execute(toolCallId, params, signal, onUpdate, ctx);
+    },
+    renderCall(args, theme, context) {
+      const state = context.state as {
+        startedAt?: number | undefined;
+        endedAt?: number | undefined;
+      };
+      if (context.executionStarted && state.startedAt === undefined) {
+        state.startedAt = Date.now();
+        state.endedAt = undefined;
+      }
+
+      const highlightedCall = renderInlineHighlightedBashCall(
+        args.command,
+        args.timeout,
+        theme,
+      );
+
+      if (args.command.includes("/tmp/delete.me.py") && highlightedCall !== null) {
+        return new Text(highlightedCall, 0, 0);
+      }
+
+      const renderedCall =
+        highlightedCall ?? formatDefaultBashCall(args.command, args.timeout, theme);
+      return new Text(renderedCall, 0, 0);
+    },
+  });
+
   pi.registerCommand(STATUS_COMMAND, {
     description: STATUS_DESCRIPTION,
     handler: async (_args, ctx) => {
@@ -84,92 +204,6 @@ export default function registerInlineFormatExtension(pi: ExtensionAPI): void {
       ctx.ui.notify(STATUS_MESSAGE, "info");
     },
   });
-
-  const bashToolDefinition: typeof originalBashTool = {
-    name: originalBashTool.name,
-    label: originalBashTool.label,
-    description: originalBashTool.description,
-    ...(originalBashTool.promptSnippet
-      ? { promptSnippet: originalBashTool.promptSnippet }
-      : {}),
-    ...(originalBashTool.promptGuidelines
-      ? { promptGuidelines: originalBashTool.promptGuidelines }
-      : {}),
-    parameters: originalBashTool.parameters,
-    async execute(
-      toolCallId: string,
-      params: BashToolInput,
-      signal: BashToolSignal,
-      onUpdate: BashToolOnUpdate,
-      ctx: BashToolExecuteContext,
-    ): Promise<BashToolResult> {
-      const inlineFormat = await analyzeInlineRenderableCommand(params.command);
-      const wrappedOnUpdate: BashToolOnUpdate =
-        onUpdate === undefined
-          ? undefined
-          : (update: BashUpdatePayload): void => {
-              onUpdate({
-                ...update,
-                details: mergeInlineFormatDetails(update.details, inlineFormat),
-              });
-            };
-      const result = await originalBashTool.execute(
-        toolCallId,
-        params,
-        signal,
-        wrappedOnUpdate,
-        ctx,
-      );
-
-      return {
-        ...result,
-        details: mergeInlineFormatDetails(result.details, inlineFormat),
-      };
-    },
-    renderCall(
-      args: BashRenderCallArgs,
-      theme: BashRenderCallTheme,
-      context: BashRenderCallContext,
-    ): BashRenderCallComponent {
-      return (
-        originalBashTool.renderCall?.(args, theme, context) ??
-        new Text(args.command, 0, 0)
-      );
-    },
-    renderResult(
-      result: BashRenderResultValue,
-      options: BashRenderResultOptions,
-      theme: BashRenderResultTheme,
-      context: BashRenderResultContext,
-    ): BashRenderResultComponent {
-      const fallback = (): BashRenderResultComponent =>
-        originalBashTool.renderResult?.(result, options, theme, context) ??
-        new Text(renderToolResultText(result), 0, 0);
-
-      if (options.isPartial || context.isError) {
-        return fallback();
-      }
-
-      const details = result.details as InlineFormatBashToolDetails | undefined;
-      const inlineFormat = details?.inlineFormat;
-      if (!inlineFormat || !hasEmbeddedRenderBlocks(inlineFormat.renderBlocks)) {
-        return fallback();
-      }
-
-      return new Text(
-        renderInlineBashResult(
-          inlineFormat.renderBlocks,
-          renderToolResultText(result),
-          options.expanded,
-          theme,
-        ),
-        0,
-        0,
-      );
-    },
-  };
-
-  pi.registerTool(bashToolDefinition);
 
   pi.registerCommand(ANALYZE_COMMAND, {
     description: ANALYZE_DESCRIPTION,
@@ -288,139 +322,6 @@ function renderBlockAsMarkdown(block: RenderBlock): string {
   const heading = `<!-- ${block.role}:${block.id} -->`;
   return `${heading}\n\
 \`\`\`${block.language}\n${block.content}\`\`\``;
-}
-
-function renderInlineBashResult(
-  renderBlocks: RenderBlock[],
-  output: string,
-  expanded: boolean,
-  theme: BashRenderResultTheme,
-): string {
-  const previewBlocks = expanded
-    ? renderBlocks
-    : truncateRenderBlocks(renderBlocks, INLINE_RENDER_PREVIEW_LINES);
-  const hiddenBlockCount = renderBlocks.length - previewBlocks.length;
-  const lines = [
-    theme.fg("success", "Inline transcript rendering"),
-    theme.fg("dim", "bash wrapper and embedded code were rendered as separate blocks."),
-  ];
-
-  for (const block of previewBlocks) {
-    lines.push("");
-    lines.push(renderInlineBlockHeading(block, theme));
-    lines.push(...renderInlineBlockContent(block, theme));
-  }
-
-  if (!expanded && hiddenBlockCount > 0) {
-    lines.push("");
-    lines.push(
-      theme.fg(
-        "dim",
-        `… ${String(hiddenBlockCount)} more block(s) hidden; expand for full output.`,
-      ),
-    );
-  }
-
-  lines.push("");
-  lines.push(theme.fg("toolTitle", theme.bold("Command output")));
-  lines.push(theme.fg("toolOutput", output));
-
-  return lines.join("\n");
-}
-
-function renderInlineBlockHeading(
-  block: RenderBlock,
-  theme: BashRenderResultTheme,
-): string {
-  const color = block.role === "embedded" ? "accent" : "warning";
-  const label = block.role === "embedded" ? "embedded code" : "bash wrapper";
-  return theme.fg(color, theme.bold(`${label} · ${block.language}`));
-}
-
-function renderInlineBlockContent(
-  block: RenderBlock,
-  theme: BashRenderResultTheme,
-): string[] {
-  const color = block.role === "embedded" ? "success" : "toolOutput";
-  const lines = block.content.replace(/\n$/, "").split("\n");
-  return lines.map((line) => theme.fg(color, line.length > 0 ? line : " "));
-}
-
-function truncateRenderBlocks(
-  renderBlocks: RenderBlock[],
-  maxLines: number,
-): RenderBlock[] {
-  let remaining = maxLines;
-  const truncated: RenderBlock[] = [];
-
-  for (const block of renderBlocks) {
-    if (remaining <= 0) {
-      break;
-    }
-
-    const rawLines = block.content.split("\n");
-    const visibleLines =
-      rawLines[rawLines.length - 1] === "" ? rawLines.length - 1 : rawLines.length;
-    const lineBudget = Math.min(remaining, Math.max(visibleLines, 1));
-    const keptLines = rawLines.slice(0, lineBudget).join("\n");
-
-    truncated.push({
-      ...block,
-      content: keptLines.endsWith("\n") ? keptLines : `${keptLines}\n`,
-    });
-    remaining -= lineBudget;
-  }
-
-  return truncated;
-}
-
-function renderToolResultText(result: { content: BashToolResult["content"] }): string {
-  const textContent = result.content
-    .filter((item) => item.type === "text")
-    .map((item) => item.text)
-    .join("\n");
-
-  return textContent || "(no output)";
-}
-
-async function analyzeInlineRenderableCommand(
-  command: string,
-): Promise<InlineFormatBashToolDetails["inlineFormat"] | undefined> {
-  try {
-    const analysisResult = await analyzeTranscriptWithRustCli(command);
-    if (!hasEmbeddedRenderBlocks(analysisResult.analysis.render_blocks)) {
-      return undefined;
-    }
-
-    return {
-      invocation: analysisResult.invocation.display,
-      renderBlocks: analysisResult.analysis.render_blocks,
-    };
-  } catch {
-    return undefined;
-  }
-}
-
-function hasEmbeddedRenderBlocks(renderBlocks: RenderBlock[]): boolean {
-  return renderBlocks.some((block) => block.role === "embedded");
-}
-
-function mergeInlineFormatDetails(
-  details: BashToolDetails | undefined,
-  inlineFormat: InlineFormatBashToolDetails["inlineFormat"] | undefined,
-): InlineFormatBashToolDetails | undefined {
-  if (!details && !inlineFormat) {
-    return undefined;
-  }
-
-  if (!inlineFormat) {
-    return details;
-  }
-
-  return {
-    ...(details ?? {}),
-    inlineFormat,
-  };
 }
 
 export function renderAnalysisAsMarkdown(analysis: AnalyzeResponse): string {

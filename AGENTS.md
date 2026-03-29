@@ -36,6 +36,26 @@ Individual commands:
 - When extending nested-language detection, add or adjust Rust pattern descriptors (for example `NESTED_REGION_PATTERNS`) instead of changing the stable JSON contract or moving parsing into TypeScript.
 - When Pi-facing rendering needs readable output, derive markdown/code-fence formatting from Rust `render_blocks` rather than rebuilding transcript splitting logic in TypeScript.
 
+## Ralph / tmux interaction rule
+
+- When guiding a live Pi slash-command workflow in tmux for this repo, if the agent has explicitly proposed the next slash command(s) and the user replies with a short approval such as `go ahead`, treat that as permission to send the corresponding tmux keys into the active Pi pane instead of merely reprinting the command for the user.
+- In that mode, operate step-by-step:
+  1. send one slash command,
+  2. read/capture the pane output,
+  3. verify the state matches expectations,
+  4. only then send the next slash command.
+- Prefer cheap/read-only slash commands first when checking readiness or state, such as `/ralphi-loop-status` or `/ralphi-loop-guidance-show`.
+- If Pi reports that the agent is busy, the pane is still working, or state is ambiguous, stop before sending the next slash command and report the blocker.
+- Do not blindly blast multiple slash commands into the pane at once unless the user explicitly asks for that behavior.
+
+## Smoke test / branch hygiene
+
+- Before picking up the next task in this repo, run `/home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke` and tear down stale repo-owned smoke sessions (for example `pi-inline-smoke-*`) instead of letting them accumulate.
+- Smoke runs for this repo must live in their own dedicated tmux window/session (for example a transient `pi-inline-smoke-*` window created only for that smoke) so cleanup is one obvious kill operation instead of mixed-pane cleanup in a shared workspace window.
+- After every repo-owned tmux smoke test, capture the needed evidence, kill the transient smoke window/session itself, and run `/home/choza/projects/scripts/tmux-agent-registry.sh prune` before moving on.
+- Treat smoke sessions for this repo as disposable by default; do not leave old `pi-inline-smoke-*` sessions around between tasks unless the user explicitly asks for a live handoff.
+- Branch discipline: prefer `main` as the default branch for the next unrelated task. If work must continue on a feature branch, say so explicitly, keep the branch focused, and switch back to `main` before starting unrelated work so the merge direction stays clear.
+
 ## Directory Structure
 
 ```text
