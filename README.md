@@ -235,6 +235,30 @@ Recommended consumer `.pi/settings.json` shape:
 5. Run `npm run check`.
 6. If the host change expanded language support or deterministic proof behavior, rerun the relevant proof flow before calling the repin complete.
 
+## ANSI-preserving tmux proof helper
+
+For color-sensitive proof that should survive beyond a live pane, use:
+
+```bash
+npm run smoke:ansi-capture-proof
+```
+
+Default behavior:
+
+- launches a deterministic target Pi pane in this repo,
+- runs `/inline-format-run-deterministic-compare typescript`,
+- launches an observer Pi pane,
+- has the observer call `tmux-capture` with `ansi: true` against the target pane,
+- validates that the observer write log still contains ANSI-highlighted TypeScript output,
+- writes artifacts under `/tmp/pi-inline-smoke-ansi-capture-*/`.
+
+Useful flags:
+
+- `--scenario python|javascript|typescript|bash`
+- `--keep-open` to leave the dedicated smoke session running for inspection
+
+This helper is for proofing the capture bridge itself. It complements, rather than replaces, the existing deterministic grid smoke and raw `PI_TUI_WRITE_LOG` artifacts.
+
 ### Pre-release local-root validation flow
 
 Before publishing a new host ref, validate against the local root package surface:
