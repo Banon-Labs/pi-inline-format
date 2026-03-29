@@ -1,34 +1,30 @@
 ## Codebase Patterns
 - Add reusable, project-wide implementation patterns here.
-- Use an ANSI-preserving `script -q -f <artifact>.typescript -c 'npx pi -e ./extensions/index.ts'` capture when tmux text alone is insufficient for color-aware Pi rendering proof.
+- Use ANSI-preserving captures (`script` recordings or `tmux capture-pane -eJS -`) when validating color-aware inline transcript rendering in Pi.
 ---
 
 ## PRD Run Context
-PRD Branch: ralph/normal-flow-visual-proof
-Started: 2026-03-28T23:34:01.623Z
+PRD Branch: ralph/normal-flow-color-proof
+Started: 2026-03-29T00:35:15.777Z
 ---
-
-## 2026-03-28 23:41 UTC - US-003
-Session: pi-inline-smoke (`script -q -f /tmp/pi-inline-format-us003.typescript -c 'npx pi -e ./extensions/index.ts'`)
+## 2026-03-29 00:37 UTC - Proof Summary
+Session: agent-pi-inline-live-proof (`script -q -f /tmp/pi-inline-live-proof.typescript -c 'pi --no-extensions -e ./extensions/index.ts'`)
 Review Outcome: PASS
 Trajectory: ON_TRACK
-Trajectory Notes: N/A
+Trajectory Notes: Normal Pi flow triggered the inline rendering path for the canonical heredoc prompt.
 Corrective Plan: N/A
-- Re-ran the canonical live Pi tmux validation prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`.
-- Captured a color-preserving proof artifact at `/tmp/pi-inline-format-us003.typescript` and verified it preserves ANSI styling for `Inline transcript rendering`, `bash wrapper · bash`, and `embedded code · python`.
-- Structural evidence from the live Pi session showed separate rendered sections in the normal flow:
+- Canonical validation prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+- Live Pi smoke test in tmux showed the normal-flow completion state with:
   - `Inline transcript rendering`
   - `bash wrapper · bash`
   - `embedded code · python`
-  - trailing `bash wrapper · bash`
-- Verified `/tmp/delete.me.py` was created and the rendered result remained distinct from the plain command output.
-- Ran `npm run check` successfully after formatting the tracked task and `.pi-lens/cache/*.json` artifacts that Prettier includes in this repo.
-- Files changed: `.ralphi/progress.txt`, `.ralphi/prd.json`, `tasks/prd-normal-flow-visual-proof.md`, `.pi-lens/cache/jscpd.json`, `.pi-lens/cache/jscpd.meta.json`, `.pi-lens/cache/knip.json`, `.pi-lens/cache/knip.meta.json`
-- **Learnings for future iterations:**
-  - ANSI-preserving `script` captures are a practical equivalent direct visual proof method for Pi rendering when reviewers need durable syntax-color evidence from tmux-driven validation.
-  - For this repo, acceptance is only complete once the proof artifact is referenced in current progress notes, not only in archived loop output.
+  - `Wrote /tmp/delete.me.py via bash heredoc.`
+- ANSI-preserving proof artifacts captured from the live session:
+  - `/tmp/pi-inline-live-proof.typescript`
+  - `/home/choza/projects/pi-inline-format/.pi-inline-live-proof.ansi` (local-only, gitignored)
+- Durable rubric captured in `.ralphi/prd.json` requires the normal flow trigger, wrapper-vs-embedded separation, Python rendering, preserved color information, and visually distinct embedded styling.
 ---
-## 2026-03-28T23:49:28.879Z - Loop Auto-Completion (loop-b6dd4c6c)
+## 2026-03-29T00:37:29.025Z - Loop Auto-Completion (loop-9381b4a1)
 - Reason: No pending PRD stories remain (all stories are status=done).
-- Iteration count at stop: 0.
+- Iteration count at stop: 3.
 ---

@@ -1,5 +1,6 @@
 # local pi state
 .pi/
+.pi-inline-live-proof.ansi
 
 # ralphi
 .ralphi/*
