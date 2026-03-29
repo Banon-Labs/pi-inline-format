@@ -47,10 +47,12 @@ const compareResult = runPi([
   "--no-skills",
   "--no-prompt-templates",
   "--no-themes",
+  "--model",
+  "inline-deterministic/canonical-heredoc-compare",
   "--mode",
   "json",
   "-p",
-  "/inline-format-run-deterministic-compare",
+  CANONICAL_PROMPT,
 ]);
 const events = parseJsonLines(compareResult.stdout);
 assert(events.length > 0, "Expected JSON events from deterministic compare command.");

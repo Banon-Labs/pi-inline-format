@@ -14,10 +14,12 @@ const PI_COMPARE_ARGS = [
   "--no-skills",
   "--no-prompt-templates",
   "--no-themes",
+  "--model",
+  "inline-deterministic/canonical-heredoc-compare",
   "--mode",
   "json",
   "-p",
-  "/inline-format-run-deterministic-compare",
+  CANONICAL_PROMPT,
 ];
 
 const repoRoot = process.cwd();
