@@ -29,6 +29,7 @@
     "rust:lint": "cargo clippy --manifest-path rust/Cargo.toml --all-targets --all-features -- -D warnings",
     "rust:test": "cargo test --manifest-path rust/Cargo.toml --all-targets --all-features",
     "verify:multilanguage-local-package-proof": "node ./scripts/verify-multilanguage-local-package-proof.mjs",
+    "smoke:deterministic-heredoc-grid": "./scripts/run-deterministic-heredoc-grid-smoke.sh",
     "verify:host-source-upgrade-path": "node ./scripts/verify-host-source-upgrade-path.mjs"
   },
   "peerDependencies": {
