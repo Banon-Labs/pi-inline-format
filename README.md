@@ -1,4 +1,5 @@
 # pi-inline-format
+[![check](https://github.com/Banon-Labs/pi-inline-format/actions/workflows/check.yml/badge.svg)](https://github.com/Banon-Labs/pi-inline-format/actions/workflows/check.yml)
 
 Strict Pi extension project scaffold with:
 
