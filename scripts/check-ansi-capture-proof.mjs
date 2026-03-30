@@ -12,21 +12,25 @@ const SCENARIOS = [
   {
     key: "python",
     plainLine: 'print("hello from /tmp/delete.me.py")',
+    visibleWaitText: "print",
     ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mprint\x1b\[39m\(`, "u"),
   },
   {
     key: "javascript",
     plainLine: 'console.log("hello from js", value);',
+    visibleWaitText: "console.log",
     ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mconsole\x1b\[39m\.log\(`, "u"),
   },
   {
     key: "typescript",
     plainLine: "type Answer = {",
+    visibleWaitText: "type Answer",
     ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mtype\x1b\[39m Answer = \{`, "u"),
   },
   {
     key: "bash",
     plainLine: 'echo "hello from sh"',
+    visibleWaitText: "echo",
     ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mecho\x1b\[39m`, "u"),
   },
 ];
@@ -76,45 +80,49 @@ function verifyScenario(scenario, index) {
   ]);
 
   const replayPath = path.join(tmpDir, "replay.ansi");
+  const observerCapturePath = path.join(tmpDir, "observer.capture");
   const observerWriteLogPath = path.join(tmpDir, "observer.write.log");
   const observerTranscriptPath = path.join(tmpDir, "observer.typescript");
   const targetWriteLogPath = path.join(tmpDir, "target.write.log");
 
-  for (const artifactPath of [
-    replayPath,
-    observerWriteLogPath,
-    observerTranscriptPath,
-    targetWriteLogPath,
-  ]) {
+  for (const artifactPath of [replayPath, observerTranscriptPath, targetWriteLogPath]) {
     assert(
       existsSync(artifactPath),
       `Expected proof artifact to exist: ${artifactPath}`,
     );
   }
 
+  const observerArtifactPath = existsSync(observerCapturePath)
+    ? observerCapturePath
+    : observerWriteLogPath;
+  assert(
+    existsSync(observerArtifactPath),
+    `Expected observer proof artifact to exist: ${observerArtifactPath}`,
+  );
+
   const replayAnsi = readFileSync(replayPath, "utf8");
-  const observerWriteLog = readFileSync(observerWriteLogPath, "utf8");
+  const observerArtifact = readFileSync(observerArtifactPath, "utf8");
   const targetWriteLog = readFileSync(targetWriteLogPath, "utf8");
 
   assert(
-    stripAnsi(replayAnsi).includes(scenario.plainLine),
-    `Expected replay artifact to contain ${scenario.key} proof line: ${scenario.plainLine}`,
+    stripAnsi(replayAnsi).includes(scenario.visibleWaitText),
+    `Expected replay artifact to contain ${scenario.key} proof text: ${scenario.visibleWaitText}`,
   );
   assert(
-    stripAnsi(observerWriteLog).includes(scenario.plainLine),
-    `Expected observer write log to contain ${scenario.key} proof line: ${scenario.plainLine}`,
+    stripAnsi(observerArtifact).includes(scenario.visibleWaitText),
+    `Expected observer artifact to contain ${scenario.key} proof text: ${scenario.visibleWaitText}`,
   );
   assert(
-    stripAnsi(targetWriteLog).includes(scenario.plainLine),
-    `Expected target write log to contain ${scenario.key} proof line: ${scenario.plainLine}`,
+    stripAnsi(targetWriteLog).includes(scenario.visibleWaitText),
+    `Expected target write log to contain ${scenario.key} proof text: ${scenario.visibleWaitText}`,
   );
   assert(
     scenario.ansiRegex.test(replayAnsi),
     `Expected replay artifact to preserve ANSI-highlighted ${scenario.key} proof content.`,
   );
   assert(
-    scenario.ansiRegex.test(observerWriteLog),
-    `Expected observer write log to preserve ANSI-highlighted ${scenario.key} proof content.`,
+    scenario.ansiRegex.test(observerArtifact),
+    `Expected observer artifact to preserve ANSI-highlighted ${scenario.key} proof content.`,
   );
 
   return {

@@ -178,26 +178,29 @@ wait_for_prompt "$OBSERVER_PANE"
 tmux send-keys -t "$TARGET_PANE" C-u
 tmux send-keys -l -t "$TARGET_PANE" "$TARGET_COMMAND"
 tmux send-keys -t "$TARGET_PANE" Enter
-wait_for_text "$TARGET_PANE" "Took "
 wait_for_file "$TMP_DIR/target.write.log"
 
 VISIBLE_WAIT_TEXT_ENV="$VISIBLE_WAIT_TEXT" ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
 from pathlib import Path
-import os, re
+import os, re, time
 visible_wait_text = os.environ['VISIBLE_WAIT_TEXT_ENV']
 ansi_regex = re.compile(os.environ['ANSI_REGEX_ENV'])
 tmp_dir = Path(os.environ['TMP_DIR_ENV'])
 ansi_strip = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+deadline = time.time() + 120
 replay_lines = []
-for candidate in [tmp_dir / 'target.write.log', tmp_dir / 'target.typescript']:
-    if not candidate.exists():
-        continue
-    for line in candidate.read_text(errors='ignore').splitlines():
-        plain = ansi_strip.sub('', line)
-        if visible_wait_text in plain and ansi_regex.search(line):
-            replay_lines.append(line)
-    if replay_lines:
-        break
+while time.time() < deadline and not replay_lines:
+    for candidate in [tmp_dir / 'target.write.log', tmp_dir / 'target.typescript']:
+        if not candidate.exists():
+            continue
+        for line in candidate.read_text(errors='ignore').splitlines():
+            plain = ansi_strip.sub('', line)
+            if visible_wait_text in plain and ansi_regex.search(line):
+                replay_lines.append(line)
+        if replay_lines:
+            break
+    if not replay_lines:
+        time.sleep(0.2)
 if not replay_lines:
     raise SystemExit('could not extract ANSI-rich proof line from target.write.log or target.typescript')
 (tmp_dir / 'replay.ansi').write_text('\n'.join(replay_lines) + '\n')
