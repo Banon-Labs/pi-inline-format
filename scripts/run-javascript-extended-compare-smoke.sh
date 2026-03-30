@@ -5,7 +5,7 @@ REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-js-extended-compare-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-compare}"
 KEEP_OPEN=0
-PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1'
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf'
 PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
 LOCAL_HOST_EXTENSION='/home/choza/projects/pi-inline-format-extensions/packages/host/extensions/index.ts'
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
@@ -48,7 +48,7 @@ trap cleanup EXIT
 cd "$REPO_ROOT"
 node --input-type=module - <<'NODE'
 import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
-ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1');
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf');
 NODE
 
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
@@ -161,8 +161,12 @@ baseline_line = find_matching_line(baseline_text)
 extended_line = find_matching_line(extended_text)
 if baseline_line is None or extended_line is None:
     raise SystemExit('could not locate the JavaScript compare line in one or both pane captures')
-if baseline_line[0] == extended_line[0]:
-    raise SystemExit('baseline and extended captures matched exactly; expected a highlighting-only visual difference')
+if baseline_line[1] != extended_line[1]:
+    raise SystemExit('baseline and extended no longer preserve the same visible JavaScript source text')
+status = 'highlight parity achieved'
+if baseline_line[0] != extended_line[0]:
+    status = 'highlight-only visual difference detected'
+print(status)
 print('baseline line:', baseline_line[1])
 print('extended line:', extended_line[1])
 PY

@@ -182,11 +182,12 @@ Verification surfaces in this repo:
   - restores the pinned git source automatically afterward.
 - `npm run smoke:javascript-extended-compare`
   - opens a dedicated tmux session with two panes for the same deterministic JavaScript heredoc scenario,
-  - left pane = current pinned baseline host implementation,
-  - right pane = local extension-extended host implementation from `~/projects/pi-inline-format-extensions`,
+  - left pane = current pinned host implementation,
+  - right pane = the local `~/projects/pi-inline-format-extensions` checkout,
   - keeps the comparison in the normal bash tool-row flow,
   - preserves the same JavaScript source text on both sides,
-  - and proves the extended side changes highlighting only, with no added footer/metadata text.
+  - forbids extra footer/metadata text,
+  - and reports either a highlight-only visual difference or post-repin parity between pinned and local host rendering.
 
 Intel command surfaces exposed by the pinned host package:
 
@@ -213,7 +214,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -234,7 +235,7 @@ Recommended consumer `.pi/settings.json` shape:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf",
       "skills": [],
       "prompts": [],
       "themes": []

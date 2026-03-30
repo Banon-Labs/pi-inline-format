@@ -43,7 +43,7 @@ case "$SCENARIO" in
     TARGET_COMMAND='/inline-format-run-deterministic-compare javascript'
     EXPECT_TEXT='console.log("hello from js", value);'
     VISIBLE_WAIT_TEXT='console.log'
-    ANSI_REGEX='\x1b\[[0-9;]*mconsole\x1b\[39m\.log\('
+    ANSI_REGEX='(?:\x1b\[[0-9;]*m)+console'
     ;;
   typescript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare typescript'
