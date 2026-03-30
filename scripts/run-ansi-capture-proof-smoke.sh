@@ -187,16 +187,19 @@ import os, re
 plain_line = os.environ['PLAIN_LINE_ENV']
 ansi_regex = re.compile(os.environ['ANSI_REGEX_ENV'])
 tmp_dir = Path(os.environ['TMP_DIR_ENV'])
-log_path = tmp_dir / 'target.write.log'
-lines = log_path.read_text(errors='ignore').splitlines()
-replay_lines = []
 ansi_strip = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
-for line in lines:
-    plain = ansi_strip.sub('', line)
-    if plain_line in plain and ansi_regex.search(line):
-        replay_lines.append(line)
+replay_lines = []
+for candidate in [tmp_dir / 'target.write.log', tmp_dir / 'target.typescript']:
+    if not candidate.exists():
+        continue
+    for line in candidate.read_text(errors='ignore').splitlines():
+        plain = ansi_strip.sub('', line)
+        if plain_line in plain and ansi_regex.search(line):
+            replay_lines.append(line)
+    if replay_lines:
+        break
 if not replay_lines:
-    raise SystemExit('could not extract ANSI-rich proof line from target.write.log')
+    raise SystemExit('could not extract ANSI-rich proof line from target.write.log or target.typescript')
 (tmp_dir / 'replay.ansi').write_text('\n'.join(replay_lines) + '\n')
 print('extracted replay lines', len(replay_lines))
 PY
