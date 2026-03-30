@@ -34,8 +34,8 @@
     "smoke:ansi-capture-proof": "./scripts/run-ansi-capture-proof-smoke.sh",
     "check:core": "npm run lint && npm run format && npm run typecheck && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
     "check:ansi-capture-proof": "node ./scripts/check-ansi-capture-proof.mjs",
-    "smoke:javascript-extended-compare": "./scripts/run-javascript-extended-compare-smoke.sh --scenario javascript",
-    "smoke:typescript-extended-compare": "./scripts/run-javascript-extended-compare-smoke.sh --scenario typescript"
+    "smoke:javascript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario javascript",
+    "smoke:typescript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario typescript"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",

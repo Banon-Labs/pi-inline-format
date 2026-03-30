@@ -180,7 +180,7 @@ Verification surfaces in this repo:
   - temporarily switches `.pi/settings.json` to the local root package source `../../pi-inline-format-extensions`,
   - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
   - restores the pinned git source automatically afterward.
-- `npm run smoke:javascript-extended-compare`
+- `npm run smoke:javascript-highlight-compare`
   - opens a dedicated tmux session with two panes for the deterministic JavaScript heredoc scenario,
   - left pane = current pinned host implementation,
   - right pane = the local `~/projects/pi-inline-format-extensions` checkout,
@@ -188,10 +188,10 @@ Verification surfaces in this repo:
   - preserves the same JavaScript source text on both sides,
   - forbids extra footer/metadata text,
   - and reports either a highlight-only visual difference or post-repin parity between pinned and local host rendering.
-- `npm run smoke:typescript-extended-compare`
+- `npm run smoke:typescript-highlight-compare`
   - uses the same compare harness for the deterministic TypeScript heredoc scenario,
   - keeps the same TypeScript source text on both sides,
-  - and proves the extended side changes highlighting only when local host work diverges from the pinned host.
+  - and proves the local semantic-highlight variant changes highlighting only when local host work diverges from the pinned host.
 
 Intel command surfaces exposed by the pinned host package:
 

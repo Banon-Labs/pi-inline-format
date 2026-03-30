@@ -2,7 +2,7 @@
 set -euo pipefail
 
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-script-extended-compare-$(date +%Y%m%d-%H%M%S)}"
+SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-semantic-highlight-compare-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-compare}"
 KEEP_OPEN=0
 SCENARIO="${SCENARIO:-javascript}"
