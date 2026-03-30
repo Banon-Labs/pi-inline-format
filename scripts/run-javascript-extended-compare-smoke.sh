@@ -2,19 +2,21 @@
 set -euo pipefail
 
 REPO_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-js-extended-compare-$(date +%Y%m%d-%H%M%S)}"
+SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-script-extended-compare-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-compare}"
 KEEP_OPEN=0
-PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf'
+SCENARIO="${SCENARIO:-javascript}"
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241'
 PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
 LOCAL_HOST_EXTENSION='/home/choza/projects/pi-inline-format-extensions/packages/host/extensions/index.ts'
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
-COMPARE_COMMAND='/inline-format-run-deterministic-compare javascript'
-COMPARE_EXPECT='hello from js 42'
-COMPARE_LINE='console.log("hello from js", value);'
 
 while (($# > 0)); do
   case "$1" in
+    --scenario)
+      SCENARIO="$2"
+      shift 2
+      ;;
     --session-name)
       SESSION_NAME="$2"
       shift 2
@@ -34,6 +36,27 @@ while (($# > 0)); do
   esac
 done
 
+case "$SCENARIO" in
+  javascript)
+    SCENARIO_LABEL='javascript'
+    COMPARE_COMMAND='/inline-format-run-deterministic-compare javascript'
+    COMPARE_EXPECT='hello from js 42'
+    COMPARE_LINE='console.log("hello from js", value);'
+    PANE_SUFFIX='js-extension'
+    ;;
+  typescript)
+    SCENARIO_LABEL='typescript'
+    COMPARE_COMMAND='/inline-format-run-deterministic-compare typescript'
+    COMPARE_EXPECT='(no output)'
+    COMPARE_LINE='const answer: Answer = { value: 42 };'
+    PANE_SUFFIX='ts-extension'
+    ;;
+  *)
+    echo "Unsupported scenario: $SCENARIO" >&2
+    exit 1
+    ;;
+esac
+
 TMP_DIR="/tmp/${SESSION_NAME}"
 mkdir -p "$TMP_DIR"
 
@@ -48,7 +71,7 @@ trap cleanup EXIT
 cd "$REPO_ROOT"
 node --input-type=module - <<'NODE'
 import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
-ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf');
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241');
 NODE
 
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
@@ -79,8 +102,8 @@ tmux select-layout -t "$SESSION_NAME:$WINDOW_NAME" even-horizontal >/dev/null
 
 tmux setw -t "$SESSION_NAME:$WINDOW_NAME" pane-border-status top
 tmux setw -t "$SESSION_NAME:$WINDOW_NAME" pane-border-format '#{pane_title}'
-tmux select-pane -t "$BASELINE_PANE" -T 'baseline:js-extension'
-tmux select-pane -t "$EXTENDED_PANE" -T 'extended:js-extension-extended'
+tmux select-pane -t "$BASELINE_PANE" -T "baseline:${PANE_SUFFIX}"
+tmux select-pane -t "$EXTENDED_PANE" -T "extended:${PANE_SUFFIX}"
 /home/choza/projects/scripts/tmux-agent-registry.sh add "$SESSION_NAME" >/dev/null 2>&1 || true
 
 wait_for_ready() {
@@ -160,9 +183,9 @@ if '// semantic ' in baseline_text or '// semantic ' in extended_text:
 baseline_line = find_matching_line(baseline_text)
 extended_line = find_matching_line(extended_text)
 if baseline_line is None or extended_line is None:
-    raise SystemExit('could not locate the JavaScript compare line in one or both pane captures')
+    raise SystemExit('could not locate the compare line in one or both pane captures')
 if baseline_line[1] != extended_line[1]:
-    raise SystemExit('baseline and extended no longer preserve the same visible JavaScript source text')
+    raise SystemExit('baseline and extended no longer preserve the same visible source text')
 status = 'highlight parity achieved'
 if baseline_line[0] != extended_line[0]:
     status = 'highlight-only visual difference detected'
@@ -171,7 +194,7 @@ print('baseline line:', baseline_line[1])
 print('extended line:', extended_line[1])
 PY
 
-printf '\nSession: %s\nWindow: %s\nArtifacts: %s\n' "$SESSION_NAME" "$WINDOW_NAME" "$TMP_DIR"
+printf '\nSession: %s\nWindow: %s\nScenario: %s\nArtifacts: %s\n' "$SESSION_NAME" "$WINDOW_NAME" "$SCENARIO" "$TMP_DIR"
 printf '  - baseline pane=%s typescript=%s write_log=%s capture=%s\n' "$BASELINE_PANE" "$TMP_DIR/baseline.typescript" "$TMP_DIR/baseline.write.log" "$TMP_DIR/baseline.capture"
 printf '  - extended pane=%s typescript=%s write_log=%s capture=%s\n' "$EXTENDED_PANE" "$TMP_DIR/extended.typescript" "$TMP_DIR/extended.write.log" "$TMP_DIR/extended.capture"
 printf '  - compare command=%s\n' "$COMPARE_COMMAND"

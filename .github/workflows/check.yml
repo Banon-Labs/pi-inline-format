@@ -33,7 +33,7 @@ jobs:
       - name: Materialize local sibling host source for migration rehearsal
         run: |
           git clone https://github.com/Banon-Labs/pi-inline-format-extensions.git ../pi-inline-format-extensions
-          git -C ../pi-inline-format-extensions checkout 213f2dda5d468701a50e6298d1ef11e891e59eaf
+          git -C ../pi-inline-format-extensions checkout 917b73ad947c6b7a615e28242305428c703ce241
           npm ci --prefix ../pi-inline-format-extensions
 
       - name: Rehearse host-source upgrade path

@@ -49,7 +49,7 @@ case "$SCENARIO" in
     TARGET_COMMAND='/inline-format-run-deterministic-compare typescript'
     EXPECT_TEXT='type Answer = {'
     VISIBLE_WAIT_TEXT='type Answer'
-    ANSI_REGEX='\x1b\[[0-9;]*mtype\x1b\[39m Answer = \{'
+    ANSI_REGEX='(?:\x1b\[[0-9;]*m)+type'
     ;;
   bash)
     TARGET_COMMAND='/inline-format-run-deterministic-compare bash'

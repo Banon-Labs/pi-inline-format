@@ -181,13 +181,17 @@ Verification surfaces in this repo:
   - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
   - restores the pinned git source automatically afterward.
 - `npm run smoke:javascript-extended-compare`
-  - opens a dedicated tmux session with two panes for the same deterministic JavaScript heredoc scenario,
+  - opens a dedicated tmux session with two panes for the deterministic JavaScript heredoc scenario,
   - left pane = current pinned host implementation,
   - right pane = the local `~/projects/pi-inline-format-extensions` checkout,
   - keeps the comparison in the normal bash tool-row flow,
   - preserves the same JavaScript source text on both sides,
   - forbids extra footer/metadata text,
   - and reports either a highlight-only visual difference or post-repin parity between pinned and local host rendering.
+- `npm run smoke:typescript-extended-compare`
+  - uses the same compare harness for the deterministic TypeScript heredoc scenario,
+  - keeps the same TypeScript source text on both sides,
+  - and proves the extended side changes highlighting only when local host work diverges from the pinned host.
 
 Intel command surfaces exposed by the pinned host package:
 
@@ -214,7 +218,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -235,7 +239,7 @@ Recommended consumer `.pi/settings.json` shape:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241",
       "skills": [],
       "prompts": [],
       "themes": []

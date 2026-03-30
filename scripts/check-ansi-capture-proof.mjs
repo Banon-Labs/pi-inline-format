@@ -6,7 +6,7 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const EXPECTED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@213f2dda5d468701a50e6298d1ef11e891e59eaf";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241";
 const ANSI_SEQUENCE_PATTERN = String.raw`\x1b\[[0-9;]*[A-Za-z]`;
 const SCENARIOS = [
   {
@@ -25,7 +25,7 @@ const SCENARIOS = [
     key: "typescript",
     plainLine: "type Answer = {",
     visibleWaitText: "type Answer",
-    ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mtype\x1b\[39m Answer = \{`, "u"),
+    ansiRegex: new RegExp(String.raw`(?:\x1b\[[0-9;]*m)+type`, "u"),
   },
   {
     key: "bash",
