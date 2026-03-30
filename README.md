@@ -219,34 +219,20 @@ Bash heredocs can hold almost any text. This table is about what **this package*
 - **Smarter highlighting** = the package keeps the same source text and layout, but adds stronger emphasis to important symbols in the normal bash tool row.
 - **Inspection backend** = the package has a language-aware backend that can inspect the extracted snippet, even if the final tool row still uses basic highlighting.
 
-### Shipped today
+### Canonical package-backed capability tables
 
-| Language     | Detects this heredoc? | Basic highlighting | Inspection backend                                 | Smarter highlighting in the normal tool row | Status                             |
-| ------------ | --------------------- | ------------------ | -------------------------------------------------- | ------------------------------------------- | ---------------------------------- |
-| Python       | ✅                    | ✅                 | ✅ `basedpyright`                                  | ❌                                          | supported, basic highlighting only |
-| JavaScript   | ✅                    | ✅                 | ✅ TypeScript language service                     | ✅                                          | shipped                            |
-| TypeScript   | ✅                    | ✅                 | ✅ TypeScript language service                     | ✅                                          | shipped                            |
-| Bash / shell | ✅                    | ✅                 | ⚠️ partial (`bash-language-server` + `shellcheck`) | ❌                                          | supported, basic highlighting only |
+The package-backed capability tables now live in the host/package repo:
 
-### Researched next candidates
+- [Shipped today](https://github.com/Banon-Labs/pi-inline-format-extensions#shipped-today)
+- [Researched next candidates](https://github.com/Banon-Labs/pi-inline-format-extensions#researched-next-candidates)
 
-These are languages we researched as plausible next steps, but they are **not wired into the package yet**.
+Use `pi-inline-format-extensions` as the source of truth for:
 
-| Language                      | Built in today? | Likely easy win     | Harder follow-up           | Notes                                                                                         |
-| ----------------------------- | --------------- | ------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
-| Ruby                          | ❌              | syntax highlighting | smarter highlighting later | Strong candidate. Ruby LSP looks more promising than Solargraph for deeper language features. |
-| PHP                           | ❌              | syntax highlighting | smarter highlighting later | Good candidate. Intelephense makes later deeper support plausible.                            |
-| Lua                           | ❌              | syntax highlighting | smarter highlighting later | Good candidate. LuaLS has real semantic-token work, but we have not wired it here.            |
-| SQL                           | ❌              | syntax highlighting | maybe later                | Straightforward syntax candidate. The deeper language story is less settled.                  |
-| Perl                          | ❌              | syntax highlighting | maybe later                | Plausible syntax candidate. Deeper language support looks weaker than Ruby/PHP/Lua.           |
-| YAML / JSON / TOML / Markdown | ❌              | syntax highlighting | probably not worth it      | Good candidates if we want more file/config formats without deeper symbol-aware work.         |
+- which heredoc languages are currently shipped,
+- which languages have real or partial inspection backends,
+- and which next-language candidates were researched but are not wired yet.
 
-### Reading the table
-
-- **Detects this heredoc?** means the package currently recognizes that language inside a bash heredoc.
-- **Basic highlighting** means Pi can color the extracted body like regular code.
-- **Inspection backend** means the repo already has a language-aware backend for that snippet.
-- **Smarter highlighting** means the normal bash tool row adds stronger symbol emphasis while keeping the exact same source text.
+This repo keeps the Rust-core and repo-local diagnostics documentation, while the package-backed capability matrix is maintained in `Banon-Labs/pi-inline-format-extensions`.
 
 This repo still exposes `extensions/index.ts` through `package.json` because the repo-local Rust diagnostics remain a valid direct local entrypoint.
 
