@@ -265,6 +265,45 @@ For unpublished host changes under active development, the preferred local packa
 
 That root-level local path matches the same package surface used by future pinned git installs. The older `../../pi-inline-format-extensions/packages/host` path remains relevant only as a historical migration source validated by `npm run verify:host-source-upgrade-path`.
 
+## Quick install in another project
+
+If you just want to try the package in a fresh project, create `.pi/settings.json` with the pinned package source:
+
+```json
+{
+  "packages": [
+    {
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241",
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    }
+  ]
+}
+```
+
+Then, in that project:
+
+```bash
+pi list
+pi
+```
+
+Inside Pi, these are good quick checks:
+
+- `/inline-format-host-status`
+- `/inline-format-run-deterministic-compare javascript`
+
+That should show:
+
+- the package under `Project packages` in `pi list`,
+- host status text from the installed package,
+- and the normal inline JavaScript heredoc row with `hello from js 42`.
+
+> This install path was validated in a clean temp project with no repo-local diagnostics extension loaded.
+
+## Consumer install/update/migration flow
+
 ## Consumer install/update/migration flow
 
 Recommended consumer `.pi/settings.json` shape:
