@@ -6,7 +6,7 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const EXPECTED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1";
 const SCENARIOS = [
   {
     key: "python",

@@ -181,6 +181,16 @@ Verification surfaces in this repo:
   - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
   - restores the pinned git source automatically afterward.
 
+Intel command surfaces exposed by the pinned host package:
+
+- `/inline-format-intel-status` — reports available intel backends and command surfaces for python, javascript, typescript, and bash.
+- `/inline-format-inspect-sample <scenario>` — inspects a representative heredoc sample through the intel backend.
+- `/inline-format-explain-symbol <scenario> <symbol>` — explains a symbol via the active backend.
+- `/inline-format-find-definition <scenario> <symbol>` — resolves definition/bound-span information for representative JS/TS/Python/Bash samples.
+- `/inline-format-highlight-symbol <scenario> <symbol>` — shows document-highlight ranges for representative samples.
+- `/inline-format-semantic-tokens <scenario>` — exposes semantic-token payloads for JS/TS without renderer integration.
+- `/inline-format-diagnostics-sample <scenario>` — reports diagnostics for representative samples.
+
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 
 - `/inline-format-status` — reports that the project-local diagnostics wrapper is wired to the Rust CLI.
@@ -196,7 +206,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -217,7 +227,7 @@ Recommended consumer `.pi/settings.json` shape:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1",
       "skills": [],
       "prompts": [],
       "themes": []

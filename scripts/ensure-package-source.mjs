@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync } from "node:fs";
-import path from "node:path";
 import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
 
 export function ensurePackageSourceMaterialized(repoRoot, source) {
   if (source.startsWith("git:")) {
@@ -24,6 +24,13 @@ function ensureGitPackageSourceMaterialized(repoRoot, source) {
   const ref = match.groups.ref;
   const cloneDir = path.join(repoRoot, ".pi", "git", slug);
   const remoteUrl = `https://${slug}.git`;
+  const packageLockPath = path.join(cloneDir, "package-lock.json");
+  const nodeModulesPackageLockPath = path.join(
+    cloneDir,
+    "node_modules",
+    ".package-lock.json",
+  );
+  const materializedRefPath = path.join(cloneDir, ".pi-materialized-ref");
 
   mkdirSync(path.dirname(cloneDir), { recursive: true });
 
@@ -34,8 +41,18 @@ function ensureGitPackageSourceMaterialized(repoRoot, source) {
   run("git", ["-C", cloneDir, "fetch", "origin", ref], repoRoot);
   run("git", ["-C", cloneDir, "checkout", "--force", ref], repoRoot);
 
-  if (!existsSync(path.join(cloneDir, "node_modules", ".package-lock.json"))) {
+  const needsInstall =
+    !existsSync(nodeModulesPackageLockPath) ||
+    !existsSync(materializedRefPath) ||
+    readFileSync(materializedRefPath, "utf8").trim() !== ref;
+
+  if (needsInstall) {
     run("npm", ["ci", "--prefix", cloneDir], repoRoot);
+    assert(
+      existsSync(packageLockPath),
+      `Expected ${packageLockPath} to exist after npm ci for ${source}.`,
+    );
+    writeFileSync(materializedRefPath, `${ref}\n`, "utf8");
   }
 }
 

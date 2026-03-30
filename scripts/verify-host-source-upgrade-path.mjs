@@ -7,7 +7,7 @@ import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const LOCAL_SOURCE = "../../pi-inline-format-extensions/packages/host";
 const PINNED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@aad3b7e67f98bd52aaa3a78cd2dcb8527d4a8d3f";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@aac63aed2e92eadba3db97b7eb1e34d0fd11a7d1";
 const CANONICAL_PROMPT =
   "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py";
 const PI_COMPARE_ARGS = [
