@@ -212,6 +212,39 @@ Pi-facing entrypoints exposed from `extensions/index.ts`:
 - `render_inline_transcript` — Pi tool that returns markdown-ready output plus structured `render_blocks` for downstream rendering.
 - package-backed host runtime seams — loaded from `.pi/settings.json`, currently owning the built-in `bash` override, deterministic compare helpers, and summary suppression behavior for the normal Pi user flow.
 
+## Heredoc language support matrix
+
+This matrix separates **shipped support** from **researched candidates**.
+
+> Bash heredocs are language-agnostic containers. In practice, support in this package means four different seams: detector coverage, Pi syntax highlighting, intel backend coverage, and final render-time semantic overlay.
+
+### Shipped today
+
+| Language     | Heredoc detection | Inline syntax highlight | Intel backend                                      | Semantic overlay in final render | Status                   |
+| ------------ | ----------------- | ----------------------- | -------------------------------------------------- | -------------------------------- | ------------------------ |
+| Python       | ✅                | ✅                      | ✅ `basedpyright`                                  | ❌                               | supported, intel-only    |
+| JavaScript   | ✅                | ✅                      | ✅ TypeScript language service                     | ✅                               | shipped                  |
+| TypeScript   | ✅                | ✅                      | ✅ TypeScript language service                     | ✅                               | shipped                  |
+| Bash / shell | ✅                | ✅                      | ⚠️ partial (`bash-language-server` + `shellcheck`) | ❌                               | supported, intel-partial |
+
+### Researched candidates, not yet wired
+
+| Language                      | Current package detector | Syntax-only feasibility | Semantic-overlay feasibility | Notes                                                                                           |
+| ----------------------------- | ------------------------ | ----------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
+| Ruby                          | ❌                       | high                    | medium                       | Strong syntax candidate; Ruby LSP looks more promising than Solargraph for semantic-token work. |
+| PHP                           | ❌                       | high                    | medium                       | Good syntax candidate; Intelephense makes semantic work plausible later.                        |
+| Lua                           | ❌                       | high                    | medium                       | Good syntax candidate; LuaLS has semantic-token support/issues in active use.                   |
+| SQL                           | ❌                       | high                    | low-medium                   | Syntax looks straightforward; semantic story is less settled.                                   |
+| Perl                          | ❌                       | high                    | low-medium                   | Syntax looks straightforward; semantic-overlay confidence is weaker than Ruby/PHP/Lua.          |
+| YAML / JSON / TOML / Markdown | ❌                       | high                    | low                          | Useful syntax-only candidates; semantic overlay is probably not worth the complexity.           |
+
+### How to read the matrix
+
+- **Heredoc detection** means the package currently recognizes the language inside a bash heredoc and routes it through the host/plugin pipeline.
+- **Inline syntax highlight** means Pi's shipped syntax highlighter (`highlightCode(...)` backed by `cli-highlight`) can color the extracted body.
+- **Intel backend** means the repo already has a language-aware backend that can inspect the extracted snippet.
+- **Semantic overlay in final render** means the normal bash tool row currently applies stronger inline emphasis while preserving the same source text and overall layout.
+
 ## Pi package notes
 
 This repo still exposes `extensions/index.ts` through `package.json` because the repo-local Rust diagnostics remain a valid direct local entrypoint.
