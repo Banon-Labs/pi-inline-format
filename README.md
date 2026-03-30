@@ -172,36 +172,33 @@ Current deterministic provider surface:
   - `/inline-format-run-deterministic-compare [scenario]` — switches to the requested deterministic scenario and submits its matching prompt with no real LLM call.
   - `/inline-format-deterministic-status` — shows the provider, available scenarios/models, default prompt, and helper commands.
 
-Verification surfaces in this repo:
+Verification in this repo:
 
 - `npm run check:pinned-host-runtime`
-  - verifies the currently pinned public git source still serves the shipped deterministic Python, JavaScript, TypeScript, and bash proof paths.
+  - makes sure the pinned public package still serves the shipped Python, JavaScript, TypeScript, and bash proof paths.
 - `npm run verify:multilanguage-local-package-proof`
   - temporarily switches `.pi/settings.json` to the local root package source `../../pi-inline-format-extensions`,
-  - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
-  - restores the pinned git source automatically afterward.
+  - checks the Python/JavaScript/TypeScript/bash scenarios,
+  - and switches back to the pinned git source automatically.
 - `npm run smoke:javascript-highlight-compare`
-  - opens a dedicated tmux session with two panes for the deterministic JavaScript heredoc scenario,
-  - left pane = current pinned host implementation,
-  - right pane = the local `~/projects/pi-inline-format-extensions` checkout,
-  - keeps the comparison in the normal bash tool-row flow,
-  - preserves the same JavaScript source text on both sides,
-  - forbids extra footer/metadata text,
-  - and reports either a highlight-only visual difference or post-repin parity between pinned and local host rendering.
+  - opens a tmux session with the same JavaScript heredoc on both sides,
+  - left pane = the current pinned package,
+  - right pane = your local checkout,
+  - keeps the normal bash tool row,
+  - keeps the same source text,
+  - and shows whether the local version changes highlighting only.
 - `npm run smoke:typescript-highlight-compare`
-  - uses the same compare harness for the deterministic TypeScript heredoc scenario,
-  - keeps the same TypeScript source text on both sides,
-  - and proves the local semantic-highlight variant changes highlighting only when local host work diverges from the pinned host.
+  - does the same side-by-side check for the TypeScript heredoc scenario.
 
-Intel command surfaces exposed by the pinned host package:
+Extra inspection commands exposed by the pinned host package:
 
-- `/inline-format-intel-status` — reports available intel backends and command surfaces for python, javascript, typescript, and bash.
-- `/inline-format-inspect-sample <scenario>` — inspects a representative heredoc sample through the intel backend.
-- `/inline-format-explain-symbol <scenario> <symbol>` — explains a symbol via the active backend.
-- `/inline-format-find-definition <scenario> <symbol>` — resolves definition/bound-span information for representative JS/TS/Python/Bash samples.
-- `/inline-format-highlight-symbol <scenario> <symbol>` — shows document-highlight ranges for representative samples.
-- `/inline-format-semantic-tokens <scenario>` — exposes semantic-token payloads for JS/TS without renderer integration.
-- `/inline-format-diagnostics-sample <scenario>` — reports diagnostics for representative samples.
+- `/inline-format-intel-status` — shows which language backends are available.
+- `/inline-format-inspect-sample <scenario>` — inspects a built-in sample heredoc.
+- `/inline-format-explain-symbol <scenario> <symbol>` — explains a symbol in a sample heredoc.
+- `/inline-format-find-definition <scenario> <symbol>` — finds where a symbol comes from in a sample heredoc.
+- `/inline-format-highlight-symbol <scenario> <symbol>` — shows matching symbol ranges in a sample heredoc.
+- `/inline-format-semantic-tokens <scenario>` — shows the raw token data for JS/TS.
+- `/inline-format-diagnostics-sample <scenario>` — shows diagnostics for a sample heredoc.
 
 Pi-facing entrypoints exposed from `extensions/index.ts`:
 
@@ -212,40 +209,44 @@ Pi-facing entrypoints exposed from `extensions/index.ts`:
 - `render_inline_transcript` — Pi tool that returns markdown-ready output plus structured `render_blocks` for downstream rendering.
 - package-backed host runtime seams — loaded from `.pi/settings.json`, currently owning the built-in `bash` override, deterministic compare helpers, and summary suppression behavior for the normal Pi user flow.
 
-## Heredoc language support matrix
+## Heredoc language support
 
-This matrix separates **shipped support** from **researched candidates**.
+Bash heredocs can hold almost any text. This table is about what **this package** knows how to recognize and highlight today.
 
-> Bash heredocs are language-agnostic containers. In practice, support in this package means four different seams: detector coverage, Pi syntax highlighting, intel backend coverage, and final render-time semantic overlay.
+### What kind of highlighting do you get?
+
+- **Basic highlighting** = the package detects the heredoc and Pi colors it like normal code.
+- **Smarter highlighting** = the package keeps the same source text and layout, but adds stronger emphasis to important symbols in the normal bash tool row.
+- **Inspection backend** = the package has a language-aware backend that can inspect the extracted snippet, even if the final tool row still uses basic highlighting.
 
 ### Shipped today
 
-| Language     | Heredoc detection | Inline syntax highlight | Intel backend                                      | Semantic overlay in final render | Status                   |
-| ------------ | ----------------- | ----------------------- | -------------------------------------------------- | -------------------------------- | ------------------------ |
-| Python       | ✅                | ✅                      | ✅ `basedpyright`                                  | ❌                               | supported, intel-only    |
-| JavaScript   | ✅                | ✅                      | ✅ TypeScript language service                     | ✅                               | shipped                  |
-| TypeScript   | ✅                | ✅                      | ✅ TypeScript language service                     | ✅                               | shipped                  |
-| Bash / shell | ✅                | ✅                      | ⚠️ partial (`bash-language-server` + `shellcheck`) | ❌                               | supported, intel-partial |
+| Language     | Detects this heredoc? | Basic highlighting | Inspection backend                                 | Smarter highlighting in the normal tool row | Status                             |
+| ------------ | --------------------- | ------------------ | -------------------------------------------------- | ------------------------------------------- | ---------------------------------- |
+| Python       | ✅                    | ✅                 | ✅ `basedpyright`                                  | ❌                                          | supported, basic highlighting only |
+| JavaScript   | ✅                    | ✅                 | ✅ TypeScript language service                     | ✅                                          | shipped                            |
+| TypeScript   | ✅                    | ✅                 | ✅ TypeScript language service                     | ✅                                          | shipped                            |
+| Bash / shell | ✅                    | ✅                 | ⚠️ partial (`bash-language-server` + `shellcheck`) | ❌                                          | supported, basic highlighting only |
 
-### Researched candidates, not yet wired
+### Researched next candidates
 
-| Language                      | Current package detector | Syntax-only feasibility | Semantic-overlay feasibility | Notes                                                                                           |
-| ----------------------------- | ------------------------ | ----------------------- | ---------------------------- | ----------------------------------------------------------------------------------------------- |
-| Ruby                          | ❌                       | high                    | medium                       | Strong syntax candidate; Ruby LSP looks more promising than Solargraph for semantic-token work. |
-| PHP                           | ❌                       | high                    | medium                       | Good syntax candidate; Intelephense makes semantic work plausible later.                        |
-| Lua                           | ❌                       | high                    | medium                       | Good syntax candidate; LuaLS has semantic-token support/issues in active use.                   |
-| SQL                           | ❌                       | high                    | low-medium                   | Syntax looks straightforward; semantic story is less settled.                                   |
-| Perl                          | ❌                       | high                    | low-medium                   | Syntax looks straightforward; semantic-overlay confidence is weaker than Ruby/PHP/Lua.          |
-| YAML / JSON / TOML / Markdown | ❌                       | high                    | low                          | Useful syntax-only candidates; semantic overlay is probably not worth the complexity.           |
+These are languages we researched as plausible next steps, but they are **not wired into the package yet**.
 
-### How to read the matrix
+| Language                      | Built in today? | Likely easy win     | Harder follow-up           | Notes                                                                                         |
+| ----------------------------- | --------------- | ------------------- | -------------------------- | --------------------------------------------------------------------------------------------- |
+| Ruby                          | ❌              | syntax highlighting | smarter highlighting later | Strong candidate. Ruby LSP looks more promising than Solargraph for deeper language features. |
+| PHP                           | ❌              | syntax highlighting | smarter highlighting later | Good candidate. Intelephense makes later deeper support plausible.                            |
+| Lua                           | ❌              | syntax highlighting | smarter highlighting later | Good candidate. LuaLS has real semantic-token work, but we have not wired it here.            |
+| SQL                           | ❌              | syntax highlighting | maybe later                | Straightforward syntax candidate. The deeper language story is less settled.                  |
+| Perl                          | ❌              | syntax highlighting | maybe later                | Plausible syntax candidate. Deeper language support looks weaker than Ruby/PHP/Lua.           |
+| YAML / JSON / TOML / Markdown | ❌              | syntax highlighting | probably not worth it      | Good candidates if we want more file/config formats without deeper symbol-aware work.         |
 
-- **Heredoc detection** means the package currently recognizes the language inside a bash heredoc and routes it through the host/plugin pipeline.
-- **Inline syntax highlight** means Pi's shipped syntax highlighter (`highlightCode(...)` backed by `cli-highlight`) can color the extracted body.
-- **Intel backend** means the repo already has a language-aware backend that can inspect the extracted snippet.
-- **Semantic overlay in final render** means the normal bash tool row currently applies stronger inline emphasis while preserving the same source text and overall layout.
+### Reading the table
 
-## Pi package notes
+- **Detects this heredoc?** means the package currently recognizes that language inside a bash heredoc.
+- **Basic highlighting** means Pi can color the extracted body like regular code.
+- **Inspection backend** means the repo already has a language-aware backend for that snippet.
+- **Smarter highlighting** means the normal bash tool row adds stronger symbol emphasis while keeping the exact same source text.
 
 This repo still exposes `extensions/index.ts` through `package.json` because the repo-local Rust diagnostics remain a valid direct local entrypoint.
 
