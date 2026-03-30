@@ -79,15 +79,15 @@ if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
   tmux kill-session -t "$SESSION_NAME"
 fi
 
-cat >"$TMP_DIR/target.sh" <<EOF
+cat >"$TMP_DIR/target.sh" <<INNER
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$REPO_ROOT"
 PI_TUI_WRITE_LOG="$TMP_DIR/target.write.log" script -q -f "$TMP_DIR/target.typescript" -c 'pi --no-session'
-EOF
+INNER
 chmod +x "$TMP_DIR/target.sh"
 
-cat >"$TMP_DIR/replay.sh" <<EOF
+cat >"$TMP_DIR/replay.sh" <<INNER
 #!/usr/bin/env bash
 set -euo pipefail
 REPLAY_FILE="$TMP_DIR/replay.ansi"
@@ -96,15 +96,15 @@ while [[ ! -s "\$REPLAY_FILE" ]]; do
 done
 cat "\$REPLAY_FILE"
 sleep 300
-EOF
+INNER
 chmod +x "$TMP_DIR/replay.sh"
 
-cat >"$TMP_DIR/observer.sh" <<EOF
+cat >"$TMP_DIR/observer.sh" <<INNER
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$REPO_ROOT"
 PI_TUI_WRITE_LOG="$TMP_DIR/observer.write.log" script -q -f "$TMP_DIR/observer.typescript" -c 'pi --no-session'
-EOF
+INNER
 chmod +x "$TMP_DIR/observer.sh"
 
 tmux new-session -d -s "$SESSION_NAME" -n "$WINDOW_NAME" "$TMP_DIR/target.sh"
@@ -206,14 +206,29 @@ PY
 
 wait_for_text "$REPLAY_PANE" "$VISIBLE_WAIT_TEXT"
 
-OBSERVER_PROMPT="Use the tmux-capture tool with name $REPLAY_PANE, lines 20, and ansi true. Do not do anything else."
-tmux send-keys -t "$OBSERVER_PANE" C-u
-tmux send-keys -l -t "$OBSERVER_PANE" "$OBSERVER_PROMPT"
-tmux send-keys -t "$OBSERVER_PANE" Enter
-wait_for_text "$OBSERVER_PANE" "$VISIBLE_WAIT_TEXT"
-wait_for_file "$TMP_DIR/observer.write.log"
+if [[ -n "${CI:-}" ]]; then
+  tmux capture-pane -ep -t "$REPLAY_PANE" -S -20 >"$TMP_DIR/observer.capture"
+  wait_for_file "$TMP_DIR/observer.capture"
 
-ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
+  ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
+from pathlib import Path
+import os, re
+log_path = Path(os.environ['TMP_DIR_ENV']) / 'observer.capture'
+text = log_path.read_text(errors='ignore')
+pattern = re.compile(os.environ['ANSI_REGEX_ENV'])
+if pattern.search(text) is None:
+    raise SystemExit('observer capture did not preserve the expected ANSI-highlighted pattern')
+print('validated ansi observer capture')
+PY
+else
+  OBSERVER_PROMPT="Use the tmux-capture tool with name $REPLAY_PANE, lines 20, and ansi true. Do not do anything else."
+  tmux send-keys -t "$OBSERVER_PANE" C-u
+  tmux send-keys -l -t "$OBSERVER_PANE" "$OBSERVER_PROMPT"
+  tmux send-keys -t "$OBSERVER_PANE" Enter
+  wait_for_text "$OBSERVER_PANE" "$VISIBLE_WAIT_TEXT"
+  wait_for_file "$TMP_DIR/observer.write.log"
+
+  ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
 from pathlib import Path
 import os, re
 log_path = Path(os.environ['TMP_DIR_ENV']) / 'observer.write.log'
@@ -223,11 +238,15 @@ if pattern.search(text) is None:
     raise SystemExit('observer write log did not preserve the expected ANSI-highlighted pattern')
 print('validated ansi observer log')
 PY
+fi
 
 printf '\nSession: %s\nWindow: %s\nScenario: %s\nArtifacts: %s\n' "$SESSION_NAME" "$WINDOW_NAME" "$SCENARIO" "$TMP_DIR"
 printf '  - target pane=%s typescript=%s write_log=%s\n' "$TARGET_PANE" "$TMP_DIR/target.typescript" "$TMP_DIR/target.write.log"
 printf '  - replay pane=%s ansi_source=%s\n' "$REPLAY_PANE" "$TMP_DIR/replay.ansi"
 printf '  - observer pane=%s typescript=%s write_log=%s\n' "$OBSERVER_PANE" "$TMP_DIR/observer.typescript" "$TMP_DIR/observer.write.log"
+if [[ -f "$TMP_DIR/observer.capture" ]]; then
+  printf '  - observer capture=%s\n' "$TMP_DIR/observer.capture"
+fi
 
 if [[ "$KEEP_OPEN" -eq 1 ]]; then
   trap - EXIT
