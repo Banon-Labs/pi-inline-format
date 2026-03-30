@@ -267,7 +267,16 @@ That root-level local path matches the same package surface used by future pinne
 
 ## Quick install in another project
 
-If you just want to try the package in a fresh project, create `.pi/settings.json` with the pinned package source:
+If you are a normal user and just want the feature, install **only the pinned package**.
+
+You do **not** need:
+
+- `../extensions/index.ts`
+- `pi-tmux`
+- `pi-semaphore`
+- any other local Pi package from this workspace
+
+Create `.pi/settings.json` with just the pinned package source:
 
 ```json
 {
@@ -329,9 +338,11 @@ These examples came from a clean install proof run captured in tmux.
 
 ## Consumer install/update/migration flow
 
-## Consumer install/update/migration flow
+## Repo-local development flow
 
-Recommended consumer `.pi/settings.json` shape:
+The section below is **for this repo only**.
+
+If you are developing inside `pi-inline-format`, keep the pinned package **and** the local diagnostics extension:
 
 ```json
 {
@@ -352,8 +363,6 @@ Recommended consumer `.pi/settings.json` shape:
 - Keep the host/runtime package source pinned in `.pi/settings.json`.
 - Keep `../extensions/index.ts` loaded locally for repo-local Rust CLI diagnostics.
 - Do **not** move the local diagnostics commands into the package source; the package owns runtime seams, while this repo keeps diagnostics.
-
-### Updating the pinned git source
 
 1. Land and publish the host-side changes in `pi-inline-format-extensions` first.
 2. Replace the `packages[0].source` value in `.pi/settings.json` with the new pinned git ref.
