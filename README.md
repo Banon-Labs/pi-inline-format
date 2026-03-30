@@ -267,7 +267,11 @@ That root-level local path matches the same package surface used by future pinne
 
 ## Quick install in another project
 
-If you are a normal user and just want the feature, install **only the pinned package**.
+If you are a normal user and just want the feature, install **only the pinned package** from:
+
+- [`Banon-Labs/pi-inline-format-extensions`](https://github.com/Banon-Labs/pi-inline-format-extensions)
+
+If that package is **not** in `.pi/settings.json`, this feature will not load.
 
 You do **not** need:
 
