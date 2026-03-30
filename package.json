@@ -33,7 +33,8 @@
     "verify:host-source-upgrade-path": "node ./scripts/verify-host-source-upgrade-path.mjs",
     "smoke:ansi-capture-proof": "./scripts/run-ansi-capture-proof-smoke.sh",
     "check:core": "npm run lint && npm run format && npm run typecheck && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
-    "check:ansi-capture-proof": "node ./scripts/check-ansi-capture-proof.mjs"
+    "check:ansi-capture-proof": "node ./scripts/check-ansi-capture-proof.mjs",
+    "smoke:javascript-extended-compare": "./scripts/run-javascript-extended-compare-smoke.sh"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",

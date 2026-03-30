@@ -180,6 +180,11 @@ Verification surfaces in this repo:
   - temporarily switches `.pi/settings.json` to the local root package source `../../pi-inline-format-extensions`,
   - verifies deterministic Python/JavaScript/TypeScript/bash scenarios,
   - restores the pinned git source automatically afterward.
+- `npm run smoke:javascript-extended-compare`
+  - opens a dedicated tmux session with two panes for the same deterministic JavaScript heredoc scenario,
+  - left pane = current pinned baseline host implementation,
+  - right pane = local extension-extended host implementation from `~/projects/pi-inline-format-extensions`,
+  - keeps the comparison in the normal bash tool-row flow and proves the extended side adds a semantic footer while the baseline side does not.
 
 Intel command surfaces exposed by the pinned host package:
 
