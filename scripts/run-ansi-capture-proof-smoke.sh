@@ -178,7 +178,7 @@ wait_for_prompt "$OBSERVER_PANE"
 tmux send-keys -t "$TARGET_PANE" C-u
 tmux send-keys -l -t "$TARGET_PANE" "$TARGET_COMMAND"
 tmux send-keys -t "$TARGET_PANE" Enter
-wait_for_text "$TARGET_PANE" "$EXPECT_TEXT"
+wait_for_text "$TARGET_PANE" "Took "
 wait_for_file "$TMP_DIR/target.write.log"
 
 PLAIN_LINE_ENV="$PLAIN_LINE" ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
