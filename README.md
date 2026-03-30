@@ -302,6 +302,31 @@ That should show:
 
 > This install path was validated in a clean temp project with no repo-local diagnostics extension loaded.
 
+## ANSI example: Python before and after install
+
+This is the same Python heredoc prompt in two states:
+
+- **Before**: deterministic provider only, no package-installed bash override.
+- **After**: pinned package installed in `.pi/settings.json`.
+
+The source text stays the same. The difference is that the installed package gives the Python body real syntax colors instead of one plain tool-colored block.
+
+**Before**
+
+```text
+\x1b[1m\x1b[38;2;208;144;96mdef main() -> None:\x1b[0m
+\x1b[1m\x1b[38;2;208;144;96m    print("hello from /tmp/delete.me.py")\x1b[0m
+```
+
+**After**
+
+```text
+\x1b[38;2;86;156;214mdef\x1b[39m \x1b[38;2;220;220;170mmain\x1b[39m() -> \x1b[38;2;181;206;168mNone\x1b[39m:
+\x1b[38;2;78;201;176mprint\x1b[39m(\x1b[38;2;206;145;120m"hello from /tmp/delete.me.py"\x1b[39m)
+```
+
+These examples came from a clean install proof run captured in tmux.
+
 ## Consumer install/update/migration flow
 
 ## Consumer install/update/migration flow
