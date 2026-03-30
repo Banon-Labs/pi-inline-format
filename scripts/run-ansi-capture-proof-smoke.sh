@@ -124,7 +124,13 @@ wait_for_prompt() {
   local pane="$1"
   local deadline=$((SECONDS + 90))
   while ((SECONDS < deadline)); do
-    if tmux capture-pane -pt "$pane" | grep -Eq '^ >[[:space:]]*$'; then
+    local snapshot
+    snapshot=$(tmux capture-pane -pt "$pane" || true)
+    if grep -Eq '^[[:space:]]*>[[:space:]]*$' <<<"$snapshot"; then
+      return 0
+    fi
+    if grep -Fq 'Pi can explain its own features' <<<"$snapshot"; then
+      sleep 1
       return 0
     fi
     sleep 0.2
