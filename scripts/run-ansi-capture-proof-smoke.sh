@@ -133,6 +133,10 @@ wait_for_prompt() {
       sleep 1
       return 0
     fi
+    if grep -Fq "$(basename "$REPO_ROOT")" <<<"$snapshot"; then
+      sleep 1
+      return 0
+    fi
     sleep 0.2
   done
   echo "Timed out waiting for prompt in $pane" >&2
