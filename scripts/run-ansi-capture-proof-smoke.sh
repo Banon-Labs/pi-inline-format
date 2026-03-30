@@ -36,25 +36,25 @@ case "$SCENARIO" in
   python)
     TARGET_COMMAND='/inline-format-run-deterministic-compare python'
     EXPECT_TEXT='print("hello from /tmp/delete.me.py")'
-    PLAIN_LINE='print("hello from /tmp/delete.me.py")'
+    VISIBLE_WAIT_TEXT='print'
     ANSI_REGEX='\x1b\[[0-9;]*mprint\x1b\[39m\('
     ;;
   javascript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare javascript'
     EXPECT_TEXT='console.log("hello from js", value);'
-    PLAIN_LINE='console.log("hello from js", value);'
+    VISIBLE_WAIT_TEXT='console.log'
     ANSI_REGEX='\x1b\[[0-9;]*mconsole\x1b\[39m\.log\('
     ;;
   typescript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare typescript'
     EXPECT_TEXT='type Answer = {'
-    PLAIN_LINE='type Answer = {'
+    VISIBLE_WAIT_TEXT='type Answer'
     ANSI_REGEX='\x1b\[[0-9;]*mtype\x1b\[39m Answer = \{'
     ;;
   bash)
     TARGET_COMMAND='/inline-format-run-deterministic-compare bash'
     EXPECT_TEXT='echo "hello from sh"'
-    PLAIN_LINE='echo "hello from sh"'
+    VISIBLE_WAIT_TEXT='echo'
     ANSI_REGEX='\x1b\[[0-9;]*mecho\x1b\[39m'
     ;;
   *)
@@ -181,10 +181,10 @@ tmux send-keys -t "$TARGET_PANE" Enter
 wait_for_text "$TARGET_PANE" "Took "
 wait_for_file "$TMP_DIR/target.write.log"
 
-PLAIN_LINE_ENV="$PLAIN_LINE" ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
+VISIBLE_WAIT_TEXT_ENV="$VISIBLE_WAIT_TEXT" ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
 from pathlib import Path
 import os, re
-plain_line = os.environ['PLAIN_LINE_ENV']
+visible_wait_text = os.environ['VISIBLE_WAIT_TEXT_ENV']
 ansi_regex = re.compile(os.environ['ANSI_REGEX_ENV'])
 tmp_dir = Path(os.environ['TMP_DIR_ENV'])
 ansi_strip = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
@@ -194,7 +194,7 @@ for candidate in [tmp_dir / 'target.write.log', tmp_dir / 'target.typescript']:
         continue
     for line in candidate.read_text(errors='ignore').splitlines():
         plain = ansi_strip.sub('', line)
-        if plain_line in plain and ansi_regex.search(line):
+        if visible_wait_text in plain and ansi_regex.search(line):
             replay_lines.append(line)
     if replay_lines:
         break
@@ -204,13 +204,13 @@ if not replay_lines:
 print('extracted replay lines', len(replay_lines))
 PY
 
-wait_for_text "$REPLAY_PANE" "$PLAIN_LINE"
+wait_for_text "$REPLAY_PANE" "$VISIBLE_WAIT_TEXT"
 
 OBSERVER_PROMPT="Use the tmux-capture tool with name $REPLAY_PANE, lines 20, and ansi true. Do not do anything else."
 tmux send-keys -t "$OBSERVER_PANE" C-u
 tmux send-keys -l -t "$OBSERVER_PANE" "$OBSERVER_PROMPT"
 tmux send-keys -t "$OBSERVER_PANE" Enter
-wait_for_text "$OBSERVER_PANE" "$PLAIN_LINE"
+wait_for_text "$OBSERVER_PANE" "$VISIBLE_WAIT_TEXT"
 wait_for_file "$TMP_DIR/observer.write.log"
 
 ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
