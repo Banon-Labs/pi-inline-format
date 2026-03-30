@@ -184,7 +184,9 @@ Verification surfaces in this repo:
   - opens a dedicated tmux session with two panes for the same deterministic JavaScript heredoc scenario,
   - left pane = current pinned baseline host implementation,
   - right pane = local extension-extended host implementation from `~/projects/pi-inline-format-extensions`,
-  - keeps the comparison in the normal bash tool-row flow and proves the extended side adds a semantic footer while the baseline side does not.
+  - keeps the comparison in the normal bash tool-row flow,
+  - preserves the same JavaScript source text on both sides,
+  - and proves the extended side changes highlighting only, with no added footer/metadata text.
 
 Intel command surfaces exposed by the pinned host package:
 

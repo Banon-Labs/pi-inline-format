@@ -11,7 +11,7 @@ LOCAL_HOST_EXTENSION='/home/choza/projects/pi-inline-format-extensions/packages/
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
 COMPARE_COMMAND='/inline-format-run-deterministic-compare javascript'
 COMPARE_EXPECT='hello from js 42'
-EXTENDED_EXPECT='// semantic '
+COMPARE_LINE='console.log("hello from js", value);'
 
 while (($# > 0)); do
   case "$1" in
@@ -129,16 +129,47 @@ done
 
 wait_for_text "$BASELINE_PANE" "$COMPARE_EXPECT"
 wait_for_text "$EXTENDED_PANE" "$COMPARE_EXPECT"
-wait_for_text "$EXTENDED_PANE" "$EXTENDED_EXPECT"
+wait_for_text "$BASELINE_PANE" 'Took '
+wait_for_text "$EXTENDED_PANE" 'Took '
 
-if tmux capture-pane -pt "$BASELINE_PANE" | grep -Fq "$EXTENDED_EXPECT"; then
-  echo "Baseline pane unexpectedly showed extended semantic footer." >&2
-  exit 1
-fi
+tmux capture-pane -ep -t "$BASELINE_PANE" -S -80 >"$TMP_DIR/baseline.capture"
+tmux capture-pane -ep -t "$EXTENDED_PANE" -S -80 >"$TMP_DIR/extended.capture"
+
+COMPARE_LINE_ENV="$COMPARE_LINE" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
+from pathlib import Path
+import os, re
+compare_line = os.environ['COMPARE_LINE_ENV']
+tmp_dir = Path(os.environ['TMP_DIR_ENV'])
+ansi = re.compile(r'\x1b\[[0-9;]*[A-Za-z]')
+osc = re.compile(r'\x1b\][^\x07]*(?:\x07|\x1b\\)')
+
+def normalize(raw: str) -> str:
+    return ansi.sub('', osc.sub('', raw)).rstrip()
+
+def find_matching_line(text: str):
+    for raw_line in text.splitlines():
+        plain_line = normalize(raw_line)
+        if compare_line in plain_line:
+            return raw_line, plain_line
+    return None
+
+baseline_text = (tmp_dir / 'baseline.capture').read_text(errors='ignore')
+extended_text = (tmp_dir / 'extended.capture').read_text(errors='ignore')
+if '// semantic ' in baseline_text or '// semantic ' in extended_text:
+    raise SystemExit('semantic footer text should not be present in highlighting-only compare output')
+baseline_line = find_matching_line(baseline_text)
+extended_line = find_matching_line(extended_text)
+if baseline_line is None or extended_line is None:
+    raise SystemExit('could not locate the JavaScript compare line in one or both pane captures')
+if baseline_line[0] == extended_line[0]:
+    raise SystemExit('baseline and extended captures matched exactly; expected a highlighting-only visual difference')
+print('baseline line:', baseline_line[1])
+print('extended line:', extended_line[1])
+PY
 
 printf '\nSession: %s\nWindow: %s\nArtifacts: %s\n' "$SESSION_NAME" "$WINDOW_NAME" "$TMP_DIR"
-printf '  - baseline pane=%s typescript=%s write_log=%s\n' "$BASELINE_PANE" "$TMP_DIR/baseline.typescript" "$TMP_DIR/baseline.write.log"
-printf '  - extended pane=%s typescript=%s write_log=%s\n' "$EXTENDED_PANE" "$TMP_DIR/extended.typescript" "$TMP_DIR/extended.write.log"
+printf '  - baseline pane=%s typescript=%s write_log=%s capture=%s\n' "$BASELINE_PANE" "$TMP_DIR/baseline.typescript" "$TMP_DIR/baseline.write.log" "$TMP_DIR/baseline.capture"
+printf '  - extended pane=%s typescript=%s write_log=%s capture=%s\n' "$EXTENDED_PANE" "$TMP_DIR/extended.typescript" "$TMP_DIR/extended.write.log" "$TMP_DIR/extended.capture"
 printf '  - compare command=%s\n' "$COMPARE_COMMAND"
 
 if [[ "$KEEP_OPEN" -eq 1 ]]; then
