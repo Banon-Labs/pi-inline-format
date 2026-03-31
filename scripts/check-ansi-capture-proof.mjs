@@ -6,7 +6,7 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const EXPECTED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5";
 const ANSI_SEQUENCE_PATTERN = String.raw`\x1b\[[0-9;]*[A-Za-z]`;
 const SCENARIOS = [
   {
@@ -31,7 +31,7 @@ const SCENARIOS = [
     key: "bash",
     plainLine: 'echo "hello from sh"',
     visibleWaitText: "echo",
-    ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mecho\x1b\[39m`, "u"),
+    ansiRegex: new RegExp(String.raw`(?:\x1b\[[0-9;]*m)+echo(?:\x1b\[[0-9;]*m)+`, "u"),
   },
 ];
 

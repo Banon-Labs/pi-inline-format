@@ -238,7 +238,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -272,7 +272,7 @@ Create `.pi/settings.json` with just the pinned package source:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -338,7 +338,7 @@ If you are developing inside `pi-inline-format`, keep the pinned package **and**
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5",
       "skills": [],
       "prompts": [],
       "themes": []

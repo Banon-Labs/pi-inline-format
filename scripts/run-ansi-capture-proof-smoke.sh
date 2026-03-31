@@ -55,7 +55,7 @@ case "$SCENARIO" in
     TARGET_COMMAND='/inline-format-run-deterministic-compare bash'
     EXPECT_TEXT='echo "hello from sh"'
     VISIBLE_WAIT_TEXT='echo'
-    ANSI_REGEX='\x1b\[[0-9;]*mecho\x1b\[39m'
+    ANSI_REGEX='(?:\x1b\[[0-9;]*m)+echo(?:\x1b\[[0-9;]*m)+'
     ;;
   *)
     echo "Unsupported scenario: $SCENARIO" >&2

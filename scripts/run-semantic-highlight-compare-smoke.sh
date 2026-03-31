@@ -6,7 +6,7 @@ SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-semantic-highlight-compare-$(date 
 WINDOW_NAME="${WINDOW_NAME:-compare}"
 KEEP_OPEN=0
 SCENARIO="${SCENARIO:-javascript}"
-PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241'
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5'
 PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
 LOCAL_HOST_EXTENSION='/home/choza/projects/pi-inline-format-extensions/packages/host/extensions/index.ts'
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
@@ -71,7 +71,7 @@ trap cleanup EXIT
 cd "$REPO_ROOT"
 node --input-type=module - <<'NODE'
 import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
-ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@917b73ad947c6b7a615e28242305428c703ce241');
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5');
 NODE
 
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
