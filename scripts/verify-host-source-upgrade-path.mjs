@@ -7,9 +7,9 @@ import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const LOCAL_SOURCE = "../../pi-inline-format-extensions/packages/host";
 const PINNED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70";
 const CANONICAL_PROMPT =
-  "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py";
+  "Use bash to run python from a heredoc with python3. Keep the transcript inline and normal.";
 const PI_COMPARE_ARGS = [
   "--no-session",
   "--no-skills",
@@ -119,15 +119,15 @@ function assertDeterministicCompare(stdout, source) {
     `Expected a bash command string for ${source}.`,
   );
   assert(
-    bashCommand.includes("cat > /tmp/delete.me.py <<'PY'"),
-    `Expected deterministic bash command to write the canonical heredoc for ${source}.`,
+    bashCommand.includes("python3 <<'PY'"),
+    `Expected deterministic bash command to run the canonical python heredoc for ${source}.`,
   );
 
   const toolResultMessage = messages[2];
   assert.equal(toolResultMessage?.role, "toolResult");
   assert.equal(toolResultMessage?.toolName, "bash");
   assert.equal(toolResultMessage?.isError, false);
-  assert.equal(toolResultMessage?.content?.[0]?.text, "(no output)");
+  assert.equal(toolResultMessage?.content?.[0]?.text, "hello from py\n");
 
   const finalAssistantMessage = messages[3];
   assert.equal(finalAssistantMessage?.role, "assistant");

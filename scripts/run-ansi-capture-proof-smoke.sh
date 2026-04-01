@@ -35,9 +35,9 @@ done
 case "$SCENARIO" in
   python)
     TARGET_COMMAND='/inline-format-run-deterministic-compare python'
-    EXPECT_TEXT='print("hello from /tmp/delete.me.py")'
+    EXPECT_TEXT='print("hello from py")'
     VISIBLE_WAIT_TEXT='print'
-    ANSI_REGEX='\x1b\[[0-9;]*mprint\x1b\[39m\('
+    ANSI_REGEX='(?:\x1b\[[0-9;]*m)+print(?:\x1b\[[0-9;]*m)+\('
     ;;
   javascript)
     TARGET_COMMAND='/inline-format-run-deterministic-compare javascript'

@@ -6,14 +6,17 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const EXPECTED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70";
 const ANSI_SEQUENCE_PATTERN = String.raw`\x1b\[[0-9;]*[A-Za-z]`;
 const SCENARIOS = [
   {
     key: "python",
-    plainLine: 'print("hello from /tmp/delete.me.py")',
+    plainLine: 'print("hello from py")',
     visibleWaitText: "print",
-    ansiRegex: new RegExp(String.raw`\x1b\[[0-9;]*mprint\x1b\[39m\(`, "u"),
+    ansiRegex: new RegExp(
+      String.raw`(?:\x1b\[[0-9;]*m)+print(?:\x1b\[[0-9;]*m)+\(`,
+      "u",
+    ),
   },
   {
     key: "javascript",

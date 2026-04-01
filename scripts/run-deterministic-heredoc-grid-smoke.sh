@@ -73,13 +73,13 @@ title_for() {
 prompt_for() {
   case "$1" in
     python)
-      echo "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py"
+      echo "Use bash to run python from a heredoc with python3. Keep the transcript inline and normal."
       ;;
     javascript)
       echo "Use bash to run javascript from a heredoc with node. Keep the transcript inline and normal."
       ;;
     typescript)
-      echo "Use bash to write typescript to a file using heredocs. Execute into /tmp/delete.me.ts"
+      echo "Use bash to run typescript from a heredoc with npx tsx. Keep the transcript inline and normal."
       ;;
     bash)
       echo "Use bash to run shell from a heredoc with bash. Keep the transcript inline and normal."
@@ -93,7 +93,8 @@ prompt_for() {
 
 expect_for() {
   case "$1" in
-    python|typescript) echo "(no output)" ;;
+    python) echo "hello from py" ;;
+    typescript) echo "hello from ts 42" ;;
     javascript) echo "hello from js 42" ;;
     bash) echo "hello from sh" ;;
     *)

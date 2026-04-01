@@ -165,7 +165,7 @@ Current deterministic provider surface:
   - `typescript-heredoc-compare` — TypeScript
   - `bash-heredoc-compare` — shell/bash
 - Default prompt/model pair:
-  - prompt: `Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py`
+  - prompt: `Use bash to run python from a heredoc with python3. Keep the transcript inline and normal.`
   - model: `inline-deterministic/canonical-heredoc-compare`
 - Commands:
   - `/inline-format-use-deterministic-model [scenario]` — switches the current session to the package-backed deterministic compare model for `python`, `javascript`, `typescript`, or `bash`.
@@ -238,7 +238,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -272,7 +272,7 @@ Create `.pi/settings.json` with just the pinned package source:
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -338,7 +338,7 @@ If you are developing inside `pi-inline-format`, keep the pinned package **and**
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@04376ffa2c8f0fc5422a73abf4c7fae8ee2960b5",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70",
       "skills": [],
       "prompts": [],
       "themes": []

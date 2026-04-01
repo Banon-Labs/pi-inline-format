@@ -11,17 +11,17 @@ const SCENARIOS = [
     key: "python",
     model: "canonical-heredoc-compare",
     prompt:
-      "Use bash to write python to a file using heredocs. Execute into /tmp/delete.me.py",
+      "Use bash to run python from a heredoc with python3. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
-      "cat > /tmp/delete.me.py <<'PY'",
+      "python3 <<'PY'",
       "#!/usr/bin/env python3",
       "def main() -> None:",
-      'print("hello from /tmp/delete.me.py")',
+      'print("hello from py")',
       'if __name__ == "__main__":',
       "main()",
       "PY",
     ],
-    expectedToolResult: "(no output)",
+    expectedToolResultIncludes: "hello from py",
   },
   {
     key: "javascript",
@@ -40,15 +40,15 @@ const SCENARIOS = [
     key: "typescript",
     model: "typescript-heredoc-compare",
     prompt:
-      "Use bash to write typescript to a file using heredocs. Execute into /tmp/delete.me.ts",
+      "Use bash to run typescript from a heredoc with npx tsx. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
-      "cat > /tmp/delete.me.ts <<'TS'",
+      "npx tsx <<'TS'",
       "type Answer = {",
       "const answer: Answer = { value: 42 };",
-      "console.log(answer.value);",
+      'console.log("hello from ts", answer.value);',
       "TS",
     ],
-    expectedToolResult: "(no output)",
+    expectedToolResultIncludes: "hello from ts 42",
   },
   {
     key: "bash",
