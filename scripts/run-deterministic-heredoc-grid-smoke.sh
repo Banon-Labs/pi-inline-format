@@ -6,7 +6,7 @@ SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-grid-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-formats}"
 KEEP_OPEN=0
 SEND_PROMPTS=1
-PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d'
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2'
 PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
 
@@ -180,7 +180,7 @@ echo "[preflight] session=$SESSION_NAME window=$WINDOW_NAME"
 cd "$REPO_ROOT"
 node --input-type=module - <<'NODE'
 import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
-ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d');
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2');
 NODE
 
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
