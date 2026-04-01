@@ -142,10 +142,19 @@ function run(command, args, cwd) {
     throw result.error;
   }
 
-  if (result.status !== 0) {
+  const warningLines =
+    command !== "npm"
+      ? []
+      : `${result.stdout}\n${result.stderr}`
+          .split(/\r?\n/u)
+          .map((line) => line.trim())
+          .filter((line) => /^npm warn\b/iu.test(line));
+
+  if (result.status !== 0 || warningLines.length > 0) {
     throw new Error(
       [
-        `${command} ${args.join(" ")} exited with status ${String(result.status)}.`,
+        `${command} ${args.join(" ")} ${result.status !== 0 ? `exited with status ${String(result.status)}.` : "emitted blocked npm warnings."}`,
+        ...(warningLines.length === 0 ? [] : ["--- npm warnings ---", ...warningLines]),
         "--- stdout ---",
         result.stdout.trim(),
         "--- stderr ---",

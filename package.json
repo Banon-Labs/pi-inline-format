@@ -36,7 +36,8 @@
     "check:ansi-capture-proof": "node ./scripts/check-ansi-capture-proof.mjs",
     "smoke:javascript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario javascript",
     "smoke:typescript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario typescript",
-    "check:npm-tarball-install": "node ./scripts/check-npm-tarball-install.mjs"
+    "check:npm-tarball-install": "node ./scripts/check-npm-tarball-install.mjs",
+    "check:npm-warnings": "node ./scripts/check-npm-tarball-install.mjs"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
@@ -74,5 +75,16 @@
     "extensions/",
     "rust/Cargo.toml",
     "rust/src/"
-  ]
+  ],
+  "overrides": {
+    "node-domexception": "file:vendor/node-domexception"
+  },
+  "peerDependenciesMeta": {
+    "@mariozechner/pi-coding-agent": {
+      "optional": true
+    },
+    "@sinclair/typebox": {
+      "optional": true
+    }
+  }
 }
