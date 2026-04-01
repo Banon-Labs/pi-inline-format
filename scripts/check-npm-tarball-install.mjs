@@ -7,7 +7,7 @@ import path from "node:path";
 const PACKAGE_NAME = "@banon-labs/pi-inline-format";
 const EXTENSIONS_PACKAGE_NAME = "@banon-labs/pi-inline-format-extensions";
 const JAVASCRIPT_PROMPT =
-  "Use bash to run javascript from a heredoc with node. Keep the transcript inline and normal.";
+  "Use bash to run javascript from a heredoc with node. Use JS as the heredoc delimiter exactly. Keep the transcript inline and normal.";
 
 const repoRoot = process.cwd();
 const extensionsRepoRoot = path.resolve(repoRoot, "..", "pi-inline-format-extensions");

@@ -165,7 +165,7 @@ Current deterministic provider surface:
   - `typescript-heredoc-compare` — TypeScript
   - `bash-heredoc-compare` — shell/bash
 - Default prompt/model pair:
-  - prompt: `Use bash to run python from a heredoc with python3. Keep the transcript inline and normal.`
+  - prompt: `Use bash to run python from a heredoc with python3. Use PY as the heredoc delimiter exactly. Keep the transcript inline and normal.`
   - model: `inline-deterministic/canonical-heredoc-compare`
 - Commands:
   - `/inline-format-use-deterministic-model [scenario]` — switches the current session to the package-backed deterministic compare model for `python`, `javascript`, `typescript`, or `bash`.
@@ -238,7 +238,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.3`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -255,7 +255,7 @@ That root-level local path matches the same package surface used by future pinne
 
 If you are a normal user and just want the feature, install **only the published npm package**:
 
-- [`npm:@banon-labs/pi-inline-format-extensions@0.1.2`](https://www.npmjs.com/package/@banon-labs/pi-inline-format-extensions)
+- [`npm:@banon-labs/pi-inline-format-extensions@0.1.3`](https://www.npmjs.com/package/@banon-labs/pi-inline-format-extensions)
 
 If you need an exact repository build instead of the published package, the pinned git source remains available as an advanced fallback.
 
@@ -274,7 +274,7 @@ Create `.pi/settings.json` with just the published npm package source:
 {
   "packages": [
     {
-      "source": "npm:@banon-labs/pi-inline-format-extensions@0.1.2",
+      "source": "npm:@banon-labs/pi-inline-format-extensions@0.1.3",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -342,7 +342,7 @@ If you are developing inside `pi-inline-format`, keep the pinned package **and**
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.3",
       "skills": [],
       "prompts": [],
       "themes": []

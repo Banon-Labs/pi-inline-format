@@ -5,13 +5,13 @@ import path from "node:path";
 
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
-const EXPECTED_SOURCE = "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2";
+const EXPECTED_SOURCE = "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.3";
 const SCENARIOS = [
   {
     key: "python",
     model: "canonical-heredoc-compare",
     prompt:
-      "Use bash to run python from a heredoc with python3. Keep the transcript inline and normal.",
+      "Use bash to run python from a heredoc with python3. Use PY as the heredoc delimiter exactly. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
       "python3 <<'PY'",
       "#!/usr/bin/env python3",
@@ -27,7 +27,7 @@ const SCENARIOS = [
     key: "javascript",
     model: "javascript-heredoc-compare",
     prompt:
-      "Use bash to run javascript from a heredoc with node. Keep the transcript inline and normal.",
+      "Use bash to run javascript from a heredoc with node. Use JS as the heredoc delimiter exactly. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
       "node <<'JS'",
       "const value = 42;",
@@ -40,7 +40,7 @@ const SCENARIOS = [
     key: "typescript",
     model: "typescript-heredoc-compare",
     prompt:
-      "Use bash to run typescript from a heredoc with npx tsx. Keep the transcript inline and normal.",
+      "Use bash to run typescript from a heredoc with npx tsx. Use TS as the heredoc delimiter exactly. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
       "npx tsx <<'TS'",
       "type Answer = {",
@@ -54,7 +54,7 @@ const SCENARIOS = [
     key: "bash",
     model: "bash-heredoc-compare",
     prompt:
-      "Use bash to run shell from a heredoc with bash. Keep the transcript inline and normal.",
+      "Use bash to run shell from a heredoc with bash. Use SH as the heredoc delimiter exactly. Keep the transcript inline and normal.",
     requiredCommandSnippets: [
       "bash <<'SH'",
       "set -euo pipefail",

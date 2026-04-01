@@ -6,7 +6,7 @@ SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-grid-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-formats}"
 KEEP_OPEN=0
 SEND_PROMPTS=1
-PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2'
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.3'
 PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
 LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
 
@@ -76,16 +76,16 @@ title_for() {
 prompt_for() {
   case "$1" in
     python)
-      echo "Use bash to run python from a heredoc with python3. Keep the transcript inline and normal."
+      echo "Use bash to run python from a heredoc with python3. Use PY as the heredoc delimiter exactly. Keep the transcript inline and normal."
       ;;
     javascript)
-      echo "Use bash to run javascript from a heredoc with node. Keep the transcript inline and normal."
+      echo "Use bash to run javascript from a heredoc with node. Use JS as the heredoc delimiter exactly. Keep the transcript inline and normal."
       ;;
     typescript)
-      echo "Use bash to run typescript from a heredoc with npx tsx. Keep the transcript inline and normal."
+      echo "Use bash to run typescript from a heredoc with npx tsx. Use TS as the heredoc delimiter exactly. Keep the transcript inline and normal."
       ;;
     bash)
-      echo "Use bash to run shell from a heredoc with bash. Keep the transcript inline and normal."
+      echo "Use bash to run shell from a heredoc with bash. Use SH as the heredoc delimiter exactly. Keep the transcript inline and normal."
       ;;
     *)
       echo "unknown scenario: $1" >&2
@@ -180,7 +180,7 @@ echo "[preflight] session=$SESSION_NAME window=$WINDOW_NAME"
 cd "$REPO_ROOT"
 node --input-type=module - <<'NODE'
 import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
-ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.2');
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.3');
 NODE
 
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
