@@ -1,13 +1,11 @@
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d",
       "skills": [],
       "prompts": [],
       "themes": []
     }
   ],
-  "extensions": [
-    "../extensions/index.ts"
-  ]
+  "extensions": ["../extensions/index.ts"]
 }

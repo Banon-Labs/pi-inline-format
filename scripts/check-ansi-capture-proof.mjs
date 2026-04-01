@@ -6,7 +6,7 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const EXPECTED_SOURCE =
-  "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70";
+  "git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d";
 const ANSI_SEQUENCE_PATTERN = String.raw`\x1b\[[0-9;]*[A-Za-z]`;
 const SCENARIOS = [
   {

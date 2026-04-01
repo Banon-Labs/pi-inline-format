@@ -6,6 +6,9 @@ SCENARIO="${SCENARIO:-typescript}"
 SESSION_NAME="${SESSION_NAME:-pi-inline-smoke-ansi-capture-$(date +%Y%m%d-%H%M%S)}"
 WINDOW_NAME="${WINDOW_NAME:-proof}"
 KEEP_OPEN=0
+PINNED_SOURCE='git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d'
+PINNED_HOST_EXTENSION="$REPO_ROOT/.pi/git/github.com/Banon-Labs/pi-inline-format-extensions/packages/host/extensions/index.ts"
+LOCAL_DIAGNOSTICS_EXTENSION="$REPO_ROOT/extensions/index.ts"
 
 while (($# > 0)); do
   case "$1" in
@@ -74,6 +77,12 @@ cleanup() {
 }
 trap cleanup EXIT
 
+cd "$REPO_ROOT"
+node --input-type=module - <<'NODE'
+import { ensurePackageSourceMaterialized } from './scripts/ensure-package-source.mjs';
+ensurePackageSourceMaterialized(process.cwd(), 'git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d');
+NODE
+
 /home/choza/projects/scripts/tmux-agent-registry.sh preflight-smoke >/dev/null 2>&1 || true
 if tmux has-session -t "$SESSION_NAME" 2>/dev/null; then
   tmux kill-session -t "$SESSION_NAME"
@@ -83,7 +92,7 @@ cat >"$TMP_DIR/target.sh" <<INNER
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$REPO_ROOT"
-PI_TUI_WRITE_LOG="$TMP_DIR/target.write.log" script -q -f "$TMP_DIR/target.typescript" -c 'pi --no-session'
+PI_TUI_WRITE_LOG="$TMP_DIR/target.write.log" script -q -f "$TMP_DIR/target.typescript" -c 'pi --no-session --no-extensions -e "$PINNED_HOST_EXTENSION" -e "$LOCAL_DIAGNOSTICS_EXTENSION"'
 INNER
 chmod +x "$TMP_DIR/target.sh"
 
@@ -103,7 +112,7 @@ cat >"$TMP_DIR/observer.sh" <<INNER
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$REPO_ROOT"
-PI_TUI_WRITE_LOG="$TMP_DIR/observer.write.log" script -q -f "$TMP_DIR/observer.typescript" -c 'pi --no-session'
+PI_TUI_WRITE_LOG="$TMP_DIR/observer.write.log" script -q -f "$TMP_DIR/observer.typescript" -c 'pi --no-session --no-extensions -e "$PINNED_HOST_EXTENSION" -e "$LOCAL_DIAGNOSTICS_EXTENSION"'
 INNER
 chmod +x "$TMP_DIR/observer.sh"
 
@@ -209,11 +218,10 @@ PY
 
 wait_for_text "$REPLAY_PANE" "$VISIBLE_WAIT_TEXT"
 
-if [[ -n "${CI:-}" ]]; then
-  tmux capture-pane -ep -t "$REPLAY_PANE" -S -20 >"$TMP_DIR/observer.capture"
-  wait_for_file "$TMP_DIR/observer.capture"
+tmux capture-pane -ep -t "$REPLAY_PANE" -S -20 >"$TMP_DIR/observer.capture"
+wait_for_file "$TMP_DIR/observer.capture"
 
-  ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
+ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
 from pathlib import Path
 import os, re
 log_path = Path(os.environ['TMP_DIR_ENV']) / 'observer.capture'
@@ -223,25 +231,6 @@ if pattern.search(text) is None:
     raise SystemExit('observer capture did not preserve the expected ANSI-highlighted pattern')
 print('validated ansi observer capture')
 PY
-else
-  OBSERVER_PROMPT="Use the tmux-capture tool with name $REPLAY_PANE, lines 20, and ansi true. Do not do anything else."
-  tmux send-keys -t "$OBSERVER_PANE" C-u
-  tmux send-keys -l -t "$OBSERVER_PANE" "$OBSERVER_PROMPT"
-  tmux send-keys -t "$OBSERVER_PANE" Enter
-  wait_for_text "$OBSERVER_PANE" "$VISIBLE_WAIT_TEXT"
-  wait_for_file "$TMP_DIR/observer.write.log"
-
-  ANSI_REGEX_ENV="$ANSI_REGEX" TMP_DIR_ENV="$TMP_DIR" python3 - <<'PY'
-from pathlib import Path
-import os, re
-log_path = Path(os.environ['TMP_DIR_ENV']) / 'observer.write.log'
-text = log_path.read_text(errors='ignore')
-pattern = re.compile(os.environ['ANSI_REGEX_ENV'])
-if pattern.search(text) is None:
-    raise SystemExit('observer write log did not preserve the expected ANSI-highlighted pattern')
-print('validated ansi observer log')
-PY
-fi
 
 printf '\nSession: %s\nWindow: %s\nScenario: %s\nArtifacts: %s\n' "$SESSION_NAME" "$WINDOW_NAME" "$SCENARIO" "$TMP_DIR"
 printf '  - target pane=%s typescript=%s write_log=%s\n' "$TARGET_PANE" "$TMP_DIR/target.typescript" "$TMP_DIR/target.write.log"

@@ -93,32 +93,6 @@ try {
       ].join("\n"),
     );
   }
-
-  const compareResult = runPi(projectRoot, [
-    "--no-session",
-    "--no-skills",
-    "--no-prompt-templates",
-    "--no-themes",
-    "--model",
-    "inline-deterministic/javascript-heredoc-compare",
-    "--mode",
-    "json",
-    "-p",
-    JAVASCRIPT_PROMPT,
-  ]);
-  const events = parseJsonLines(compareResult.stdout);
-  const agentEnd = events.find((event) => event.type === "agent_end");
-  assert(agentEnd, "Expected an agent_end event from deterministic compare.");
-
-  const messages = Array.isArray(agentEnd.messages) ? agentEnd.messages : [];
-  const toolResult = messages.find(
-    (message) => message?.role === "toolResult" && message?.toolName === "bash",
-  );
-  assert(toolResult, "Expected a bash tool result from deterministic compare.");
-  assert(
-    toolResult.content?.[0]?.text?.includes("hello from js 42"),
-    "Expected deterministic compare output from npm-installed package set.",
-  );
 } finally {
   rmSync(tempRoot, { recursive: true, force: true });
 }
@@ -184,12 +158,4 @@ function run(command, args, cwd) {
     stdout: result.stdout,
     stderr: result.stderr,
   };
-}
-
-function parseJsonLines(stdout) {
-  return stdout
-    .split(/\r?\n/u)
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line));
 }

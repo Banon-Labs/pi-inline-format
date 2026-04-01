@@ -1,7 +1,7 @@
 {
   "name": "@banon-labs/pi-inline-format",
   "private": false,
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Strict Pi extension project with a Rust core subproject and a TypeScript extension wrapper.",
   "type": "module",
   "keywords": [

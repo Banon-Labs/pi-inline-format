@@ -65,8 +65,8 @@ It currently runs four layers:
    - covers the headless deterministic regression path for the pinned host source.
 3. `npm run check:ansi-capture-proof`
    - runs the tmux-based ANSI capture proof harness,
-   - consumes the new `replay.ansi` and `observer.write.log` artifacts,
-   - verifies that color-sensitive proof survives the `tmux-capture ansi:true` path for python, javascript, typescript, and bash.
+   - consumes the new `replay.ansi` and `observer.capture` artifacts,
+   - verifies that color-sensitive proof survives the ANSI-preserving `tmux capture-pane -e` bridge for python, javascript, typescript, and bash.
 4. `npm run check:core`
    - covers linting, formatting, TypeScript checks, and all Rust checks/tests.
 
@@ -238,7 +238,7 @@ This repo still exposes `extensions/index.ts` through `package.json` because the
 
 For normal package-backed development, project-scoped `.pi/settings.json` now loads both:
 
-- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70`
+- host package source: `git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d`
 - local diagnostics extension: `../extensions/index.ts`
 
 This split keeps reusable runtime behavior in the pinned git-backed host package while preserving repo-local Rust CLI diagnostics inside `pi-inline-format`.
@@ -255,7 +255,7 @@ That root-level local path matches the same package surface used by future pinne
 
 If you are a normal user and just want the feature, install **only the published npm package**:
 
-- [`npm:@banon-labs/pi-inline-format-extensions@0.1.0`](https://www.npmjs.com/package/@banon-labs/pi-inline-format-extensions)
+- [`npm:@banon-labs/pi-inline-format-extensions@0.1.1`](https://www.npmjs.com/package/@banon-labs/pi-inline-format-extensions)
 
 If you need an exact repository build instead of the published package, the pinned git source remains available as an advanced fallback.
 
@@ -274,7 +274,7 @@ Create `.pi/settings.json` with just the published npm package source:
 {
   "packages": [
     {
-      "source": "npm:@banon-labs/pi-inline-format-extensions@0.1.0",
+      "source": "npm:@banon-labs/pi-inline-format-extensions@0.1.1",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -342,7 +342,7 @@ If you are developing inside `pi-inline-format`, keep the pinned package **and**
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70",
+      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@2764877e3e4970eefe7e3f6ac7582c0b60d15b5d",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -378,8 +378,8 @@ Default behavior:
 - launches a deterministic target Pi pane in this repo,
 - runs `/inline-format-run-deterministic-compare typescript`,
 - launches an observer Pi pane,
-- extracts ANSI-rich proof lines into a replay pane, then has the observer call `tmux-capture` with `ansi: true` against that replay pane,
-- validates that the observer write log still contains ANSI-highlighted TypeScript output,
+- extracts ANSI-rich proof lines into a replay pane, then captures that replay pane with ANSI-preserving `tmux capture-pane -e`,
+- validates that the observer capture artifact still contains ANSI-highlighted TypeScript output,
 - writes artifacts under `/tmp/pi-inline-smoke-ansi-capture-*/`.
 
 Useful flags:
