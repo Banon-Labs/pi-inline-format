@@ -253,9 +253,11 @@ That root-level local path matches the same package surface used by future pinne
 
 ## Quick install in another project
 
-If you are a normal user and just want the feature, install **only the pinned package** from:
+If you are a normal user and just want the feature, install **only the published npm package**:
 
-- [`Banon-Labs/pi-inline-format-extensions`](https://github.com/Banon-Labs/pi-inline-format-extensions)
+- [`npm:@banon-labs/pi-inline-format-extensions@0.1.0`](https://www.npmjs.com/package/@banon-labs/pi-inline-format-extensions)
+
+If you need an exact repository build instead of the published package, the pinned git source remains available as an advanced fallback.
 
 If that package is **not** in `.pi/settings.json`, this feature will not load.
 
@@ -266,13 +268,13 @@ You do **not** need:
 - `pi-semaphore`
 - any other local Pi package from this workspace
 
-Create `.pi/settings.json` with just the pinned package source:
+Create `.pi/settings.json` with just the published npm package source:
 
 ```json
 {
   "packages": [
     {
-      "source": "git:github.com/Banon-Labs/pi-inline-format-extensions@3940ceef96e80aee3f44ef7cdcf0007220521b70",
+      "source": "npm:@banon-labs/pi-inline-format-extensions@0.1.0",
       "skills": [],
       "prompts": [],
       "themes": []
@@ -299,7 +301,7 @@ That should show:
 - host status text from the installed package,
 - and the normal inline JavaScript heredoc row with `hello from js 42`.
 
-> This install path was validated in a clean temp project with no repo-local diagnostics extension loaded.
+> This install path was validated in a clean temp project with no repo-local diagnostics extension loaded. The repo-local development flow below still uses a pinned git ref because current consumer-regression scripts are anchored to an exact host commit.
 
 ## ANSI example: Python before and after install
 
@@ -327,6 +329,8 @@ The source text stays the same. The difference is that the installed package giv
 These examples came from a clean install proof run captured in tmux.
 
 ## Consumer install/update/migration flow
+
+For normal users, prefer the npm package source above. The remaining pinned-git instructions in this repo are for repo-local development, release rehearsal, and exact-commit rollback.
 
 ## Repo-local development flow
 
