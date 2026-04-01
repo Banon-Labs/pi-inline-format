@@ -28,10 +28,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Materialize local sibling host source for migration rehearsal
+      - name: Materialize released sibling host source for migration rehearsal
         run: |
           git clone https://github.com/Banon-Labs/pi-inline-format-extensions.git ../pi-inline-format-extensions
-          git -C ../pi-inline-format-extensions checkout 3940ceef96e80aee3f44ef7cdcf0007220521b70
+          git -C ../pi-inline-format-extensions checkout v0.1.0
           npm ci --prefix ../pi-inline-format-extensions
 
       - name: Run validation
