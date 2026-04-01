@@ -2,6 +2,9 @@ name: Publish npm package
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - "v*"
 
 permissions:
   contents: read
@@ -21,6 +24,12 @@ jobs:
           node-version: 24
           cache: npm
           registry-url: https://registry.npmjs.org
+
+      - name: Upgrade npm for trusted publishing
+        run: npm install -g npm@latest
+
+      - name: Show toolchain versions
+        run: node --version && npm --version
 
       - name: Set up Rust
         uses: dtolnay/rust-toolchain@stable
