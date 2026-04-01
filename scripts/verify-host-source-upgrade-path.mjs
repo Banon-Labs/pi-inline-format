@@ -6,7 +6,7 @@ import path from "node:path";
 import { ensurePackageSourceMaterialized } from "./ensure-package-source.mjs";
 
 const LOCAL_SOURCE = "../../pi-inline-format-extensions/packages/host";
-const PINNED_SOURCE = "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.4";
+const PINNED_SOURCE = "git:github.com/Banon-Labs/pi-inline-format-extensions@v0.1.5";
 const CANONICAL_PROMPT =
   "Use bash to run python from a heredoc with python3. Use PY as the heredoc delimiter exactly. Keep the transcript inline and normal.";
 const PI_COMPARE_ARGS = [

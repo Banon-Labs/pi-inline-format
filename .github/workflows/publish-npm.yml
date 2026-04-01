@@ -40,8 +40,8 @@ jobs:
       - name: Materialize released sibling host source for migration rehearsal
         run: |
           git clone https://github.com/Banon-Labs/pi-inline-format-extensions.git ../pi-inline-format-extensions
-          git -C ../pi-inline-format-extensions checkout v0.1.4
-          npm ci --prefix ../pi-inline-format-extensions
+          git -C ../pi-inline-format-extensions checkout v0.1.5
+          node ./scripts/run-npm-command-without-warnings.mjs --prefix ../pi-inline-format-extensions ci
 
       - name: Run validation
         run: npm run check
