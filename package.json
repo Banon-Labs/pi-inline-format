@@ -1,6 +1,6 @@
 {
-  "name": "pi-inline-format",
-  "private": true,
+  "name": "@banon-labs/pi-inline-format",
+  "private": false,
   "version": "0.1.0",
   "description": "Strict Pi extension project with a Rust core subproject and a TypeScript extension wrapper.",
   "type": "module",
@@ -16,7 +16,7 @@
     ]
   },
   "scripts": {
-    "check": "npm run check:core && npm run check:pinned-host-runtime && npm run check:ansi-capture-proof",
+    "check": "npm run check:core && npm run check:pinned-host-runtime && npm run check:ansi-capture-proof && npm run check:npm-tarball-install",
     "check:pinned-host-runtime": "node ./scripts/check-pinned-host-runtime.mjs",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
@@ -35,7 +35,8 @@
     "check:core": "npm run lint && npm run format && npm run typecheck && npm run rust:fmt && npm run rust:check && npm run rust:lint && npm run rust:test",
     "check:ansi-capture-proof": "node ./scripts/check-ansi-capture-proof.mjs",
     "smoke:javascript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario javascript",
-    "smoke:typescript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario typescript"
+    "smoke:typescript-highlight-compare": "./scripts/run-semantic-highlight-compare-smoke.sh --scenario typescript",
+    "check:npm-tarball-install": "node ./scripts/check-npm-tarball-install.mjs"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
@@ -55,5 +56,22 @@
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Banon-Labs/pi-inline-format.git"
+  },
+  "homepage": "https://github.com/Banon-Labs/pi-inline-format#readme",
+  "bugs": {
+    "url": "https://github.com/Banon-Labs/pi-inline-format/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "files": [
+    "README.md",
+    "extensions/",
+    "rust/Cargo.toml",
+    "rust/src/"
+  ]
 }
